@@ -24,26 +24,63 @@ foreach ( $feature_groups as $group ) {
 	}
 }
 ?>
+<?php if ( ! empty( $release_status['newer_release'] ) ) : ?>
+	<section class="myp-release-notice <?php echo ! empty( $release_status['update_available'] ) ? 'myp-release-notice--ready' : 'myp-release-notice--missing'; ?>">
+		<span class="myp-release-notice__icon dashicons <?php echo ! empty( $release_status['update_available'] ) ? 'dashicons-update' : 'dashicons-warning'; ?>" aria-hidden="true"></span>
+		<div class="myp-release-notice__copy">
+			<strong>
+				<?php
+				printf(
+					/* translators: 1: Latest release tag, 2: Installed version. */
+					esc_html__( 'GitHub release %1$s is newer than installed v%2$s.', 'telegram-bot' ),
+					esc_html( $release_status['latest_tag'] ),
+					esc_html( $release_status['installed_version'] )
+				);
+				?>
+			</strong>
+			<span>
+				<?php
+				echo ! empty( $release_status['update_available'] )
+					? esc_html__( 'The release package is valid and WordPress can install this upgrade.', 'telegram-bot' )
+					: sprintf(
+						/* translators: %s: Required GitHub release asset filename. */
+						esc_html__( 'Automatic upgrade is waiting for the GitHub Release asset %s.', 'telegram-bot' ),
+						esc_html( $release_status['expected_asset'] )
+					);
+				?>
+			</span>
+		</div>
+		<div class="myp-release-notice__actions">
+			<?php if ( ! empty( $release_status['update_available'] ) ) : ?>
+				<a class="button button-primary myp-button" href="<?php echo esc_url( self_admin_url( 'update-core.php' ) ); ?>"><?php esc_html_e( 'Upgrade plugin', 'telegram-bot' ); ?></a>
+			<?php endif; ?>
+			<a class="button myp-button" href="<?php echo esc_url( $release_status['release_url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View GitHub release', 'telegram-bot' ); ?></a>
+		</div>
+	</section>
+<?php endif; ?>
 <section class="myp-hero <?php echo $connection_ok ? 'myp-hero--ready' : 'myp-hero--attention'; ?>">
+	<div class="myp-hero__banner" role="img" aria-label="<?php esc_attr_e( 'Telegram Bot Trigger Notifications banner', 'telegram-bot' ); ?>"></div>
 	<div class="myp-hero__content">
-		<span class="myp-status-pill">
-			<span class="myp-status-dot" aria-hidden="true"></span>
-			<?php echo $connection_ok ? esc_html__( 'Ready to send', 'telegram-bot' ) : esc_html__( 'Setup required', 'telegram-bot' ); ?>
-		</span>
-		<h2>
-			<?php
-			echo $connection_ok
-				? esc_html__( 'Your WordPress notifications are connected to Telegram.', 'telegram-bot' )
-				: esc_html__( 'Connect Telegram to start receiving WordPress activity.', 'telegram-bot' );
-			?>
-		</h2>
-		<p>
-			<?php
-			echo $connection_ok
-				? esc_html__( 'Monitor content, users, comments, and system events without leaving your conversations.', 'telegram-bot' )
-				: esc_html__( 'Add your BotFather token and at least one chat ID. You can test delivery as soon as the connection is saved.', 'telegram-bot' );
-			?>
-		</p>
+		<div class="myp-hero__message">
+			<span class="myp-status-pill">
+				<span class="myp-status-dot" aria-hidden="true"></span>
+				<?php echo $connection_ok ? esc_html__( 'Ready to send', 'telegram-bot' ) : esc_html__( 'Setup required', 'telegram-bot' ); ?>
+			</span>
+			<h2>
+				<?php
+				echo $connection_ok
+					? esc_html__( 'Your WordPress notifications are connected to Telegram.', 'telegram-bot' )
+					: esc_html__( 'Connect Telegram to start receiving WordPress activity.', 'telegram-bot' );
+				?>
+			</h2>
+			<p>
+				<?php
+				echo $connection_ok
+					? esc_html__( 'Monitor content, users, comments, and system events without leaving your conversations.', 'telegram-bot' )
+					: esc_html__( 'Add your BotFather token and at least one chat ID. You can test delivery as soon as the connection is saved.', 'telegram-bot' );
+				?>
+			</p>
+		</div>
 		<div class="myp-hero__actions">
 			<a class="button button-primary myp-button" href="<?php echo esc_url( admin_url( 'admin.php?page=myp-telegram-settings' ) ); ?>">
 				<span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
@@ -53,11 +90,6 @@ foreach ( $feature_groups as $group ) {
 				<?php esc_html_e( 'Configure triggers', 'telegram-bot' ); ?>
 			</a>
 		</div>
-	</div>
-	<div class="myp-hero__art" aria-hidden="true">
-		<div class="myp-telegram-mark"><span class="dashicons dashicons-arrow-right-alt"></span></div>
-		<span class="myp-orbit myp-orbit--one"></span>
-		<span class="myp-orbit myp-orbit--two"></span>
 	</div>
 </section>
 

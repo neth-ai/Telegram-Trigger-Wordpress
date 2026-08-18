@@ -211,6 +211,7 @@ class MYP_Telegram_Settings {
 				'date_separator' => 'space',
 				'time_format'    => '24',
 				'show_seconds'   => 1,
+				'timezone'       => 'Asia/Phnom_Penh',
 			),
 			'content'                 => array(
 				'enabled'    => 1,
@@ -278,6 +279,7 @@ class MYP_Telegram_Settings {
 			'date_separator' => $this->allowed_value( isset( $datetime['date_separator'] ) ? $datetime['date_separator'] : '', array( 'space', 'slash', 'dash', 'dot' ), 'space' ),
 			'time_format'    => $this->allowed_value( isset( $datetime['time_format'] ) ? $datetime['time_format'] : '', array( '12', '24' ), '24' ),
 			'show_seconds'   => empty( $datetime['show_seconds'] ) ? 0 : 1,
+			'timezone'       => $this->sanitize_timezone( isset( $datetime['timezone'] ) ? $datetime['timezone'] : '' ),
 		);
 
 		foreach ( array( 'content', 'media', 'comments', 'users', 'system', 'available_updates', 'integrations' ) as $group ) {
@@ -371,7 +373,37 @@ class MYP_Telegram_Settings {
 	}
 
 	/**
-	 * Format a timestamp using the plugin settings and WordPress timezone.
+	 * Return the timezone selected for Telegram messages.
+	 *
+	 * @return DateTimeZone
+	 */
+	public function get_datetime_timezone() {
+		$timezone = (string) $this->get( 'datetime.timezone', 'Asia/Phnom_Penh' );
+
+		if ( 'wordpress' === $timezone ) {
+			return wp_timezone();
+		}
+
+		if ( ! in_array( $timezone, timezone_identifiers_list(), true ) ) {
+			$timezone = 'Asia/Phnom_Penh';
+		}
+
+		return new DateTimeZone( $timezone );
+	}
+
+	/**
+	 * Return a readable label for the selected message timezone.
+	 *
+	 * @return string
+	 */
+	public function get_datetime_timezone_label() {
+		$timezone = (string) $this->get( 'datetime.timezone', 'Asia/Phnom_Penh' );
+
+		return 'wordpress' === $timezone ? wp_timezone_string() . ' (WordPress)' : $this->get_datetime_timezone()->getName();
+	}
+
+	/**
+	 * Format a timestamp using the plugin settings and selected timezone.
 	 *
 	 * @param int|null $timestamp Unix timestamp, or null for now.
 	 * @return string
@@ -379,7 +411,7 @@ class MYP_Telegram_Settings {
 	public function format_datetime( $timestamp = null ) {
 		$timestamp = null === $timestamp ? time() : (int) $timestamp;
 
-		return wp_date( $this->get_datetime_format(), $timestamp, wp_timezone() );
+		return wp_date( $this->get_datetime_format(), $timestamp, $this->get_datetime_timezone() );
 	}
 
 	/**
@@ -452,6 +484,22 @@ class MYP_Telegram_Settings {
 		$value = sanitize_key( (string) $value );
 
 		return in_array( $value, $allowed, true ) ? $value : $fallback;
+	}
+
+	/**
+	 * Sanitize a message timezone selection.
+	 *
+	 * @param mixed $timezone Submitted timezone.
+	 * @return string
+	 */
+	private function sanitize_timezone( $timezone ) {
+		$timezone = sanitize_text_field( (string) $timezone );
+
+		if ( 'wordpress' === $timezone ) {
+			return $timezone;
+		}
+
+		return in_array( $timezone, timezone_identifiers_list(), true ) ? $timezone : 'Asia/Phnom_Penh';
 	}
 
 	/**

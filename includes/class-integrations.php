@@ -72,6 +72,8 @@ class MYP_Telegram_Integrations {
 	 */
 	private function send_integration_alert( $header, $lines ) {
 		$message = array_merge( array( $header, '' ), array_filter( $lines, 'is_string' ) );
+		$khmer   = MYP_Telegram_Template_Manager::instance()->is_khmer_locale();
+		$message[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime();
 
 		return MYP_Telegram_API::instance()->send( implode( "\n", $message ) );
 	}

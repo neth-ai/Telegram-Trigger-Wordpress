@@ -50,11 +50,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<small><?php esc_html_e( 'Keep this token private. It authorizes anyone who has it to control your bot.', 'telegram-bot' ); ?></small>
 			</div>
 
-			<label class="myp-field myp-field--full">
-				<span><?php esc_html_e( 'Chat ID(s)', 'telegram-bot' ); ?></span>
-				<input type="text" name="chat_ids" value="<?php echo esc_attr( $settings['chat_ids'] ); ?>" placeholder="123456789, -1001234567890" autocomplete="off" spellcheck="false">
+			<div class="myp-field myp-field--full">
+				<label for="myp-chat-ids"><?php esc_html_e( 'Chat ID(s)', 'telegram-bot' ); ?></label>
+				<span class="myp-input-group">
+					<input id="myp-chat-ids" type="password" name="chat_ids" value="<?php echo esc_attr( $settings['chat_ids'] ); ?>" placeholder="123456789, -1001234567890" autocomplete="off" spellcheck="false">
+					<button type="button" class="myp-input-action" data-myp-password-toggle="myp-chat-ids" data-label-show="<?php esc_attr_e( 'Show chat IDs', 'telegram-bot' ); ?>" data-label-hide="<?php esc_attr_e( 'Hide chat IDs', 'telegram-bot' ); ?>" aria-label="<?php esc_attr_e( 'Show chat IDs', 'telegram-bot' ); ?>">
+						<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+					</button>
+				</span>
 				<small><?php esc_html_e( 'Separate multiple users, groups, or channels with commas.', 'telegram-bot' ); ?></small>
-			</label>
+			</div>
 		</div>
 	</section>
 

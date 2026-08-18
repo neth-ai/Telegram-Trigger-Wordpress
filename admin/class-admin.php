@@ -247,6 +247,7 @@ class MYP_Telegram_Admin {
 				'date_separator' => isset( $posted_datetime['date_separator'] ) ? sanitize_key( $posted_datetime['date_separator'] ) : 'space',
 				'time_format'    => isset( $posted_datetime['time_format'] ) ? sanitize_key( $posted_datetime['time_format'] ) : '24',
 				'show_seconds'   => isset( $posted_datetime['show_seconds'] ) ? 1 : 0,
+				'timezone'       => isset( $posted_datetime['timezone'] ) ? sanitize_text_field( $posted_datetime['timezone'] ) : 'Asia/Phnom_Penh',
 			);
 		}
 
@@ -259,7 +260,8 @@ class MYP_Telegram_Admin {
 	 * @return void
 	 */
 	public function render_dashboard() {
-		$settings = myp_telegram_settings()->get_settings();
+		$settings       = myp_telegram_settings()->get_settings();
+		$release_status = MYP_Telegram_GitHub_Updater::instance()->get_release_status();
 		$this->page_header( __( 'Telegram Bot Dashboard', 'telegram-bot' ), __( 'Monitor configuration status and test message delivery.', 'telegram-bot' ) );
 		$this->render_notice();
 		include MYP_TELEGRAM_DIR . 'admin/views/dashboard.php';
@@ -310,7 +312,7 @@ class MYP_Telegram_Admin {
 	public function render_datetime() {
 		$settings = myp_telegram_settings()->get_settings();
 		$preview  = myp_telegram_format_datetime();
-		$timezone = wp_timezone_string();
+		$timezone = myp_telegram_settings()->get_datetime_timezone_label();
 		$this->page_header( __( 'Date & Time Format', 'telegram-bot' ), __( 'Choose how dates and times appear in Telegram notifications and plugin logs.', 'telegram-bot' ) );
 		$this->render_notice();
 		include MYP_TELEGRAM_DIR . 'admin/views/datetime.php';
@@ -480,6 +482,17 @@ class MYP_Telegram_Admin {
 	 * @return void
 	 */
 	private function page_header( $title, $description ) {
+		$release_status = MYP_Telegram_GitHub_Updater::instance()->get_release_status();
+		$installed      = ! empty( $release_status['installed_version'] ) ? $release_status['installed_version'] : MYP_TELEGRAM_VERSION;
+		$latest_tag     = ! empty( $release_status['latest_tag'] ) ? $release_status['latest_tag'] : 'v' . $installed;
+		$version_label  = $latest_tag;
+		$version_class  = 'myp-version';
+
+		if ( ! empty( $release_status['newer_release'] ) ) {
+			$version_label = 'v' . $installed . ' → ' . $latest_tag;
+			$version_class .= ! empty( $release_status['update_available'] ) ? ' myp-version--update' : ' myp-version--package-missing';
+		}
+
 		echo '<div class="wrap myp-wrap">';
 		echo '<header class="myp-page-header">';
 		echo '<div class="myp-page-header__icon" aria-hidden="true"><span class="dashicons dashicons-format-chat"></span></div>';
@@ -488,7 +501,15 @@ class MYP_Telegram_Admin {
 		echo '<h1>' . esc_html( $title ) . '</h1>';
 		echo '<p class="myp-lead">' . esc_html( $description ) . '</p>';
 		echo '</div>';
-		echo '<span class="myp-version">v' . esc_html( MYP_TELEGRAM_VERSION ) . '</span>';
+		if ( ! empty( $release_status['update_available'] ) ) {
+			echo '<a class="' . esc_attr( $version_class ) . '" href="' . esc_url( self_admin_url( 'update-core.php' ) ) . '">' . esc_html( $version_label ) . '<span>' . esc_html__( 'Update available', 'telegram-bot' ) . '</span></a>';
+		} else {
+			echo '<span class="' . esc_attr( $version_class ) . '">' . esc_html( $version_label );
+			if ( ! empty( $release_status['newer_release'] ) && empty( $release_status['package_available'] ) ) {
+				echo '<span>' . esc_html__( 'Release ZIP required', 'telegram-bot' ) . '</span>';
+			}
+			echo '</span>';
+		}
 		echo '</header>';
 	}
 

@@ -24,8 +24,8 @@ $datetime = $settings['datetime'];
 			<small>
 				<?php
 				printf(
-					/* translators: %s: WordPress timezone name. */
-					esc_html__( 'Timezone: %s (from WordPress Settings → General)', 'telegram-bot' ),
+					/* translators: %s: Selected message timezone. */
+					esc_html__( 'Message timezone: %s', 'telegram-bot' ),
 					esc_html( $timezone )
 				);
 				?>
@@ -42,6 +42,23 @@ $datetime = $settings['datetime'];
 		</div>
 
 		<div class="myp-field-grid">
+			<label class="myp-field myp-field--full">
+				<span><?php esc_html_e( 'Message timezone', 'telegram-bot' ); ?></span>
+				<select name="datetime[timezone]">
+					<option value="wordpress" <?php selected( 'wordpress', $datetime['timezone'] ); ?>>
+						<?php
+						printf(
+							/* translators: %s: Current WordPress timezone. */
+							esc_html__( 'Use WordPress site timezone — %s', 'telegram-bot' ),
+							esc_html( wp_timezone_string() )
+						);
+						?>
+					</option>
+					<?php echo wp_timezone_choice( $datetime['timezone'], get_user_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted WordPress core-generated options. ?>
+				</select>
+				<small><?php esc_html_e( 'Asia/Phnom_Penh is the default and displays Cambodia time (UTC+07:00).', 'telegram-bot' ); ?></small>
+			</label>
+
 			<label class="myp-field">
 				<span><?php esc_html_e( 'Date order', 'telegram-bot' ); ?></span>
 				<select name="datetime[date_order]">

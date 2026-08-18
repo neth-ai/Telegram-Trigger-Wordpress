@@ -158,7 +158,52 @@ class MYP_Telegram_GitHub_Updater {
 			return $this->build_no_update_data( $installed );
 		}
 
-		return $this->build_update_data( $release, $new_version );
+		return version_compare( $new_version, $installed, '>' )
+			? $this->build_update_data( $release, $new_version )
+			: $this->build_no_update_data( $installed );
+	}
+
+	/**
+	 * Return installed and latest GitHub release information for the dashboard.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function get_release_status() {
+		$installed = $this->get_plugin_version();
+		$release   = $this->get_latest_release();
+		$status    = array(
+			'installed_version' => $installed,
+			'latest_version'    => '',
+			'latest_tag'        => '',
+			'release_url'       => self::HOMEPAGE . '/releases',
+			'package_available' => false,
+			'newer_release'     => false,
+			'update_available'  => false,
+			'expected_asset'    => '',
+		);
+
+		if ( ! $release ) {
+			return $status;
+		}
+
+		$latest_version = $this->normalize_version( $release['tag_name'] );
+
+		if ( '' === $latest_version ) {
+			return $status;
+		}
+
+		$package_available = ! empty( $release['download_url'] );
+		$newer_release     = '' !== $installed && version_compare( $latest_version, $installed, '>' );
+
+		$status['latest_version']    = $latest_version;
+		$status['latest_tag']        = 'v' . $latest_version;
+		$status['release_url']       = $release['release_url'];
+		$status['package_available'] = $package_available;
+		$status['newer_release']     = $newer_release;
+		$status['update_available']  = $newer_release && $package_available;
+		$status['expected_asset']    = 'telegram-bot-v' . $latest_version . '.zip';
+
+		return $status;
 	}
 
 	/**
@@ -310,7 +355,10 @@ class MYP_Telegram_GitHub_Updater {
 	private function get_plugin_sections( $release, $banner_url, $build_information ) {
 		$changelog = ! empty( $release['body'] )
 			? wpautop( wp_kses_post( $release['body'] ) )
-			: '<h3>' . esc_html__( 'Version 1.0.0', 'telegram-bot' ) . '</h3>' .
+			: '<h3>' . sprintf(
+				esc_html__( 'Version %s', 'telegram-bot' ),
+				esc_html( $this->get_plugin_version() )
+			) . '</h3>' .
 				'<ul>' .
 				'<li>' . esc_html__( 'Initial GitHub release and custom WordPress update integration.', 'telegram-bot' ) . '</li>' .
 				'<li>' . esc_html__( 'Responsive administration dashboard, settings, triggers, alerts, templates, and logs.', 'telegram-bot' ) . '</li>' .
@@ -329,7 +377,7 @@ class MYP_Telegram_GitHub_Updater {
 				'<li>' . esc_html__( 'WooCommerce and popular form-plugin submissions through optional integrations.', 'telegram-bot' ) . '</li>' .
 				'<li>' . esc_html__( 'Multiple Telegram recipients, duplicate suppression, message formatting, diagnostic logs, shortcodes, and developer hooks.', 'telegram-bot' ) . '</li>' .
 				'</ul>' .
-				'<p>' . esc_html__( 'Build information:', 'telegram-bot' ) . ' <strong>' . esc_html( $build_information ) . ' (' . esc_html( wp_timezone_string() ) . ')</strong>.</p>' .
+				'<p>' . esc_html__( 'Build information:', 'telegram-bot' ) . ' <strong>' . esc_html( $build_information ) . ' (' . esc_html( myp_telegram_settings()->get_datetime_timezone_label() ) . ')</strong>.</p>' .
 				'<p><strong>' . esc_html__( 'Repository:', 'telegram-bot' ) . '</strong> <a href="' . esc_url( self::HOMEPAGE ) . '">neth-ai/Telegram-Trigger-Wordpress</a></p>',
 			'installation' =>
 				'<h3>' . esc_html__( 'Set up the plugin', 'telegram-bot' ) . '</h3>' .
@@ -371,7 +419,7 @@ class MYP_Telegram_GitHub_Updater {
 				'<li><strong>' . esc_html__( 'Telegram Settings:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Manage the bot token, chat IDs, formatting, previews, and duplicate suppression.', 'telegram-bot' ) . '</li>' .
 				'<li><strong>' . esc_html__( 'Triggers:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Choose content, media, comment, and supported integration events.', 'telegram-bot' ) . '</li>' .
 				'<li><strong>' . esc_html__( 'Alerts:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Choose user, security, system, and available-update notifications.', 'telegram-bot' ) . '</li>' .
-				'<li><strong>' . esc_html__( 'Date & Time Format:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Choose DMY, MDY, or YMD dates, month and year styles, separators, a 12/24-hour clock, and optional seconds.', 'telegram-bot' ) . '</li>' .
+				'<li><strong>' . esc_html__( 'Date & Time Format:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Choose the message timezone, DMY, MDY, or YMD dates, month and year styles, separators, a 12/24-hour clock, and optional seconds.', 'telegram-bot' ) . '</li>' .
 				'<li><strong>' . esc_html__( 'Templates & Developer:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Use the shortcode, action hook, helper, and message filter for custom workflows.', 'telegram-bot' ) . '</li>' .
 				'<li><strong>' . esc_html__( 'Logs:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Review recent delivery errors and diagnostic activity without exposing bot tokens.', 'telegram-bot' ) . '</li>' .
 				'</ul>' .
@@ -485,7 +533,7 @@ class MYP_Telegram_GitHub_Updater {
 	}
 
 	/**
-	 * Fetch the latest GitHub release with a 6 hour cache.
+	 * Fetch the latest GitHub release with a 15 minute cache.
 	 *
 	 * @return array<string, string>|null
 	 */
@@ -566,7 +614,7 @@ class MYP_Telegram_GitHub_Updater {
 			'published_at'  => ! empty( $body['published_at'] ) ? (string) $body['published_at'] : '',
 		);
 
-		set_transient( 'myp_telegram_github_release', $release, 6 * HOUR_IN_SECONDS );
+		set_transient( 'myp_telegram_github_release', $release, 15 * MINUTE_IN_SECONDS );
 
 		return $release;
 	}

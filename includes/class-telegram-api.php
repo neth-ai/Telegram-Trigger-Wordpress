@@ -92,12 +92,13 @@ class MYP_Telegram_API {
 		}
 
 		$site = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		$khmer = MYP_Telegram_Template_Manager::instance()->is_khmer_locale();
 		$sent = $this->send(
 			'✅ ' . sprintf(
 				/* translators: %s: website name. */
 				__( 'Telegram test message from %s is working.', 'telegram-bot' ),
 				$site
-			)
+			) . "\n" . ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime()
 		);
 
 		return array(

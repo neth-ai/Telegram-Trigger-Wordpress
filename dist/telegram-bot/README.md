@@ -69,7 +69,7 @@ The **Telegram-Bot** menu and all subpages require the `manage_options` capabili
 - **Telegram Settings** manages the BotFather token, chat IDs, parse mode, link previews, and duplicate suppression.
 - **Triggers** controls notifications for content, media, comments, WooCommerce, and supported form plugins.
 - **Alerts** controls user actions, login/security events, system changes, and scheduled available-update digests.
-- **Date & Time Format** controls DMY, MDY, or YMD order; numeric or named months; 2/4-digit years; separators; 12/24-hour clocks; and optional seconds. The WordPress site timezone is used automatically.
+- **Date & Time Format** controls DMY, MDY, or YMD order; numeric or named months; 2/4-digit years; separators; 12/24-hour clocks; optional seconds; and the message timezone. Cambodia time (`Asia/Phnom_Penh`) is the default, with an option to follow the WordPress site timezone.
 - **Templates & Developer** documents the shortcode, action hook, helper function, and message filter.
 - **Logs** provides recent diagnostic information without logging bot tokens or private authentication data.
 
@@ -84,6 +84,8 @@ neth-ai/Telegram-Trigger-Wordpress
 ```
 
 When a release tag such as `v1.0.1` is newer than the installed version and has the matching release ZIP asset, WordPress will show an update in **Plugins**.
+
+The plugin dashboard also reads the latest GitHub Release tag. It shows the installed and latest versions, displays an upgrade action when a valid package is available, or explains which release ZIP is missing. Release information is refreshed every 15 minutes.
 
 For the update to install cleanly, attach a ZIP named like:
 

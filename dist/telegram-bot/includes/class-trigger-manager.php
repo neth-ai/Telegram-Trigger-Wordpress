@@ -1316,6 +1316,9 @@ class MYP_Telegram_Trigger_Manager {
 			$lines[] = implode( ', ', $items );
 		}
 
+		$lines[] = '';
+		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime();
+
 		MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
 	}
 }
