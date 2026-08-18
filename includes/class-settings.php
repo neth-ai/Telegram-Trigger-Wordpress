@@ -410,8 +410,10 @@ class MYP_Telegram_Settings {
 	 */
 	public function format_datetime( $timestamp = null ) {
 		$timestamp = null === $timestamp ? time() : (int) $timestamp;
+		$formatted = wp_date( $this->get_datetime_format(), $timestamp, $this->get_datetime_timezone() );
+		$without_month_prefix = preg_replace( '/ខែ[\x{200B}\x{FEFF}_\s]*/u', '', $formatted );
 
-		return wp_date( $this->get_datetime_format(), $timestamp, $this->get_datetime_timezone() );
+		return is_string( $without_month_prefix ) ? $without_month_prefix : $formatted;
 	}
 
 	/**
