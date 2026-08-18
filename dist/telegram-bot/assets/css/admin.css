@@ -1,0 +1,152 @@
+.myp-wrap {
+	max-width: 980px;
+}
+
+.myp-lead {
+	color: #50575e;
+	font-size: 14px;
+	margin-bottom: 22px;
+}
+
+.myp-card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+	margin: 0 0 20px;
+	padding: 20px;
+}
+
+.myp-card--inline {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 18px;
+	flex-wrap: wrap;
+}
+
+.myp-card--inline .myp-card__title {
+	flex: 0 0 100%;
+}
+
+.myp-card__title {
+	font-size: 15px;
+	font-weight: 700;
+	margin-bottom: 8px;
+}
+
+.myp-card__desc {
+	color: #646970;
+	margin: 0 0 16px;
+}
+
+.myp-field {
+	display: block;
+	margin: 0 0 16px;
+}
+
+.myp-field > span {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+
+.myp-field input[type="text"],
+.myp-field input[type="password"],
+.myp-field input[type="number"],
+.myp-field select {
+	min-height: 36px;
+	width: 100%;
+	max-width: 540px;
+}
+
+.myp-field small {
+	color: #787c82;
+	display: block;
+	margin-top: 5px;
+}
+
+.myp-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 18px;
+}
+
+.myp-master {
+	align-items: center;
+	display: flex;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.myp-master input {
+	margin: 0;
+}
+
+.myp-section {
+	border-top: 1px solid #f0f0f1;
+	margin-top: 16px;
+	padding-top: 16px;
+}
+
+.myp-section__title {
+	font-weight: 700;
+	margin-bottom: 12px;
+}
+
+.myp-check-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 9px 18px;
+}
+
+.myp-check-grid label {
+	align-items: flex-start;
+	display: flex;
+	gap: 7px;
+	line-height: 1.45;
+}
+
+.myp-check-grid input {
+	margin: 2px 0 0;
+}
+
+.myp-check-grid code {
+	font-size: 11px;
+	opacity: 0.75;
+}
+
+.myp-submit {
+	margin: 18px 0 0;
+}
+
+.myp-code {
+	background: #1d2327;
+	border-radius: 6px;
+	color: #fff;
+	font-size: 13px;
+	line-height: 1.6;
+	margin: 8px 0 0;
+	overflow-x: auto;
+	padding: 14px 16px;
+}
+
+.myp-list {
+	list-style: disc;
+	margin: 0 0 0 18px;
+}
+
+.myp-list li {
+	margin-bottom: 8px;
+}
+
+@media (max-width: 782px) {
+	.myp-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.myp-card--inline {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}
