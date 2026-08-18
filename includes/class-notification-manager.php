@@ -96,7 +96,7 @@ class MYP_Telegram_Notification_Manager {
 			'⚠️ ' . ( $khmer ? 'Failed Login Alert' : 'Failed Login Alert' ),
 			'',
 			( $khmer ? 'ឈ្មោះដែលបានប៉ុនប៉ង: ' : 'Attempted username: ' ) . $username,
-			( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . wp_date( 'd F Y, H:i:s', null, wp_timezone() ),
+			( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime(),
 		);
 
 		return MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );

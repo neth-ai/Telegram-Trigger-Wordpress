@@ -33,6 +33,18 @@ if ( ! function_exists( 'myp_telegram_send_notification' ) ) {
 	}
 }
 
+if ( ! function_exists( 'myp_telegram_format_datetime' ) ) {
+	/**
+	 * Format a date and time using the plugin's saved display preferences.
+	 *
+	 * @param int|null $timestamp Unix timestamp, or null for now.
+	 * @return string
+	 */
+	function myp_telegram_format_datetime( $timestamp = null ) {
+		return myp_telegram_settings()->format_datetime( $timestamp );
+	}
+}
+
 if ( ! function_exists( 'myp_telegram_send_system_alert' ) ) {
 	/**
 	 * Send a system alert.

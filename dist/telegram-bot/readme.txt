@@ -25,6 +25,9 @@ Features:
 * Optional available-updates digest.
 * Optional integrations for WooCommerce, Contact Form 7, WPForms, Fluent Forms, Ninja Forms, Elementor Forms, and Gravity Forms.
 * Multi-chat support, duplicate suppression, HTML/MarkdownV2 parse modes, shortcode, action hook, and filter customization.
+* Configurable DMY, MDY, or YMD dates; month and year styles; separators; 12/24-hour time; and optional seconds using the WordPress timezone.
+
+Build information: **18 សីហា 2026, 09:10:22 (Asia/Phnom_Penh)**.
 
 == Installation ==
 
@@ -33,6 +36,16 @@ Features:
 3. Open the new **Telegram-Bot** menu.
 4. Enter your Telegram bot token and chat ID.
 5. Click **Send test message**, then enable the triggers you need.
+
+== Usage Guide ==
+
+* **Dashboard:** Review connection status, setup progress, recipient count, enabled alert groups, and send a test message.
+* **Telegram Settings:** Configure the BotFather token, chat IDs, message formatting, link previews, and duplicate suppression.
+* **Triggers:** Select the content, media, comment, and supported integration events that should send notifications.
+* **Alerts:** Select user, login, security, plugin, theme, WordPress core, language, and available-update alerts.
+* **Date & Time Format:** Choose the date order, month and year display, separator, 12/24-hour clock, and whether notifications include seconds.
+* **Templates & Developer:** Use the shortcode, action hook, helper function, and message filter for custom workflows.
+* **Logs:** Review recent delivery errors and diagnostic entries. Bot tokens and private authentication data are not logged.
 
 == Frequently Asked Questions ==
 
@@ -56,7 +69,18 @@ No. User alerts intentionally exclude passwords, password hashes, email addresse
 
 The plugin uses GitHub releases from https://github.com/neth-ai/Telegram-Trigger-Wordpress. Create a release tag such as `v1.0.1` and attach a ZIP named `telegram-bot-v1.0.1.zip` containing the `telegram-bot/` folder. An update is advertised only when that matching, installable release asset exists.
 
+== Screenshots ==
+
+1. Telegram Bot Trigger Notifications banner and WordPress-to-Telegram notification flow.
+
+== Ratings and Feedback ==
+
+This custom GitHub plugin does not import ratings from unrelated WordPress.org plugins. Report issues or suggest improvements at https://github.com/neth-ai/Telegram-Trigger-Wordpress/issues.
+
 == Changelog ==
 
 = 1.0.0 =
-* Initial release.
+* Initial GitHub release and custom WordPress update integration.
+* Responsive administration dashboard, settings, triggers, alerts, templates, and logs.
+* Configurable date and time formats for Telegram alerts and logs.
+* Custom plugin details modal with project-owned description, setup, FAQ, changelog, screenshot, valuation, and usage information.

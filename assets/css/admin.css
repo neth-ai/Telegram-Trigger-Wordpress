@@ -952,6 +952,60 @@
 	font-weight: 700;
 }
 
+.myp-datetime-preview {
+	align-items: center;
+	background: linear-gradient(135deg, #eff8ff, #f7fbff 55%, #eef2ff);
+	border-color: #b9dcf4;
+	display: flex;
+	gap: 18px;
+}
+
+.myp-datetime-preview__icon {
+	align-items: center;
+	background: var(--myp-blue);
+	border-radius: 12px;
+	box-shadow: 0 8px 18px rgba(36, 129, 204, 0.2);
+	color: #fff;
+	display: flex;
+	flex: 0 0 48px;
+	height: 48px;
+	justify-content: center;
+}
+
+.myp-datetime-preview__icon .dashicons {
+	font-size: 25px;
+	height: 25px;
+	width: 25px;
+}
+
+.myp-datetime-preview span,
+.myp-datetime-preview strong,
+.myp-datetime-preview small {
+	display: block;
+}
+
+.myp-datetime-preview span {
+	color: var(--myp-muted);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.myp-datetime-preview strong {
+	color: var(--myp-ink);
+	font-size: 22px;
+	line-height: 1.35;
+	margin: 2px 0;
+}
+
+.myp-datetime-preview small {
+	color: var(--myp-muted);
+}
+
+.myp-setting-row--datetime {
+	margin: 0;
+	min-height: 78px;
+}
+
 @media (max-width: 960px) {
 	.myp-hero {
 		grid-template-columns: minmax(0, 1fr) 210px;
@@ -1058,6 +1112,14 @@
 
 	.myp-setting-row {
 		align-items: flex-start;
+	}
+
+	.myp-datetime-preview {
+		align-items: flex-start;
+	}
+
+	.myp-datetime-preview strong {
+		font-size: 18px;
 	}
 }
 

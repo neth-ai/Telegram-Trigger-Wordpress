@@ -204,6 +204,14 @@ class MYP_Telegram_Settings {
 			'parse_mode'              => '',
 			'disable_web_page_preview'=> 1,
 			'duplicate_ttl'           => 15,
+			'datetime'                => array(
+				'date_order'     => 'dmy',
+				'month_format'   => 'full',
+				'year_format'    => 'four',
+				'date_separator' => 'space',
+				'time_format'    => '24',
+				'show_seconds'   => 1,
+			),
 			'content'                 => array(
 				'enabled'    => 1,
 				'post_types' => array( 'post', 'page' ),
@@ -262,6 +270,16 @@ class MYP_Telegram_Settings {
 		$settings['disable_web_page_preview'] = empty( $settings['disable_web_page_preview'] ) ? 0 : 1;
 		$settings['duplicate_ttl']            = max( 0, min( 3600, (int) $settings['duplicate_ttl'] ) );
 
+		$datetime             = isset( $settings['datetime'] ) && is_array( $settings['datetime'] ) ? $settings['datetime'] : array();
+		$settings['datetime'] = array(
+			'date_order'     => $this->allowed_value( isset( $datetime['date_order'] ) ? $datetime['date_order'] : '', array( 'dmy', 'mdy', 'ymd' ), 'dmy' ),
+			'month_format'   => $this->allowed_value( isset( $datetime['month_format'] ) ? $datetime['month_format'] : '', array( 'numeric', 'short', 'full' ), 'full' ),
+			'year_format'    => $this->allowed_value( isset( $datetime['year_format'] ) ? $datetime['year_format'] : '', array( 'two', 'four' ), 'four' ),
+			'date_separator' => $this->allowed_value( isset( $datetime['date_separator'] ) ? $datetime['date_separator'] : '', array( 'space', 'slash', 'dash', 'dot' ), 'space' ),
+			'time_format'    => $this->allowed_value( isset( $datetime['time_format'] ) ? $datetime['time_format'] : '', array( '12', '24' ), '24' ),
+			'show_seconds'   => empty( $datetime['show_seconds'] ) ? 0 : 1,
+		);
+
 		foreach ( array( 'content', 'media', 'comments', 'users', 'system', 'available_updates', 'integrations' ) as $group ) {
 			if ( ! isset( $settings[ $group ] ) || ! is_array( $settings[ $group ] ) ) {
 				$settings[ $group ] = $defaults[ $group ];
@@ -288,6 +306,80 @@ class MYP_Telegram_Settings {
 		$settings['available_updates']['schedule'] = $schedule;
 
 		return $settings;
+	}
+
+	/**
+	 * Build the saved WordPress date format string.
+	 *
+	 * @return string
+	 */
+	public function get_date_format() {
+		$order      = $this->get( 'datetime.date_order', 'dmy' );
+		$month_type = $this->get( 'datetime.month_format', 'full' );
+		$year_type  = $this->get( 'datetime.year_format', 'four' );
+		$separator  = $this->get( 'datetime.date_separator', 'space' );
+		$month      = 'numeric' === $month_type ? 'm' : ( 'short' === $month_type ? 'M' : 'F' );
+		$year       = 'two' === $year_type ? 'y' : 'Y';
+		$separators = array(
+			'space' => ' ',
+			'slash' => '/',
+			'dash'  => '-',
+			'dot'   => '.',
+		);
+		$parts = array(
+			'd' => 'd',
+			'm' => $month,
+			'y' => $year,
+		);
+		$orders = array(
+			'dmy' => array( 'd', 'm', 'y' ),
+			'mdy' => array( 'm', 'd', 'y' ),
+			'ymd' => array( 'y', 'm', 'd' ),
+		);
+
+		$order     = isset( $orders[ $order ] ) ? $order : 'dmy';
+		$separator = isset( $separators[ $separator ] ) ? $separators[ $separator ] : ' ';
+
+		return implode( $separator, array_map( static function ( $part ) use ( $parts ) {
+			return $parts[ $part ];
+		}, $orders[ $order ] ) );
+	}
+
+	/**
+	 * Build the saved WordPress time format string.
+	 *
+	 * @return string
+	 */
+	public function get_time_format() {
+		$is_12_hour = '12' === $this->get( 'datetime.time_format', '24' );
+		$format     = $is_12_hour ? 'h:i' : 'H:i';
+
+		if ( $this->get( 'datetime.show_seconds', 1 ) ) {
+			$format .= ':s';
+		}
+
+		return $is_12_hour ? $format . ' A' : $format;
+	}
+
+	/**
+	 * Build the complete saved date and time format string.
+	 *
+	 * @return string
+	 */
+	public function get_datetime_format() {
+		return $this->get_date_format() . ', ' . $this->get_time_format();
+	}
+
+	/**
+	 * Format a timestamp using the plugin settings and WordPress timezone.
+	 *
+	 * @param int|null $timestamp Unix timestamp, or null for now.
+	 * @return string
+	 */
+	public function format_datetime( $timestamp = null ) {
+		$timestamp = null === $timestamp ? time() : (int) $timestamp;
+
+		return wp_date( $this->get_datetime_format(), $timestamp, wp_timezone() );
 	}
 
 	/**
@@ -346,6 +438,20 @@ class MYP_Telegram_Settings {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Return a value when it is allowed, otherwise return the fallback.
+	 *
+	 * @param mixed             $value    Submitted value.
+	 * @param array<int,string> $allowed  Allowed values.
+	 * @param string            $fallback Fallback value.
+	 * @return string
+	 */
+	private function allowed_value( $value, $allowed, $fallback ) {
+		$value = sanitize_key( (string) $value );
+
+		return in_array( $value, $allowed, true ) ? $value : $fallback;
 	}
 
 	/**

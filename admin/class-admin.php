@@ -65,6 +65,7 @@ class MYP_Telegram_Admin {
 		add_submenu_page( 'myp-telegram-bot', __( 'Telegram Settings', 'telegram-bot' ), __( 'Telegram Settings', 'telegram-bot' ), 'manage_options', 'myp-telegram-settings', array( $this, 'render_settings' ) );
 		add_submenu_page( 'myp-telegram-bot', __( 'Triggers', 'telegram-bot' ), __( 'Triggers', 'telegram-bot' ), 'manage_options', 'myp-telegram-triggers', array( $this, 'render_triggers' ) );
 		add_submenu_page( 'myp-telegram-bot', __( 'Alerts', 'telegram-bot' ), __( 'Alerts', 'telegram-bot' ), 'manage_options', 'myp-telegram-alerts', array( $this, 'render_alerts' ) );
+		add_submenu_page( 'myp-telegram-bot', __( 'Date & Time Format', 'telegram-bot' ), __( 'Date & Time Format', 'telegram-bot' ), 'manage_options', 'myp-telegram-datetime', array( $this, 'render_datetime' ) );
 		add_submenu_page( 'myp-telegram-bot', __( 'Templates', 'telegram-bot' ), __( 'Templates', 'telegram-bot' ), 'manage_options', 'myp-telegram-templates', array( $this, 'render_templates' ) );
 		add_submenu_page( 'myp-telegram-bot', __( 'Logs', 'telegram-bot' ), __( 'Logs', 'telegram-bot' ), 'manage_options', 'myp-telegram-logs', array( $this, 'render_logs' ) );
 	}
@@ -237,6 +238,18 @@ class MYP_Telegram_Admin {
 			);
 		}
 
+		if ( 'datetime' === $page ) {
+			$posted_datetime = isset( $posted['datetime'] ) && is_array( $posted['datetime'] ) ? $posted['datetime'] : array();
+			$input['datetime'] = array(
+				'date_order'     => isset( $posted_datetime['date_order'] ) ? sanitize_key( $posted_datetime['date_order'] ) : 'dmy',
+				'month_format'   => isset( $posted_datetime['month_format'] ) ? sanitize_key( $posted_datetime['month_format'] ) : 'full',
+				'year_format'    => isset( $posted_datetime['year_format'] ) ? sanitize_key( $posted_datetime['year_format'] ) : 'four',
+				'date_separator' => isset( $posted_datetime['date_separator'] ) ? sanitize_key( $posted_datetime['date_separator'] ) : 'space',
+				'time_format'    => isset( $posted_datetime['time_format'] ) ? sanitize_key( $posted_datetime['time_format'] ) : '24',
+				'show_seconds'   => isset( $posted_datetime['show_seconds'] ) ? 1 : 0,
+			);
+		}
+
 		return $input;
 	}
 
@@ -287,6 +300,20 @@ class MYP_Telegram_Admin {
 		$this->page_header( __( 'Alerts', 'telegram-bot' ), __( 'Configure user-action and system-update alerts.', 'telegram-bot' ) );
 		$this->render_notice();
 		include MYP_TELEGRAM_DIR . 'admin/views/alerts.php';
+	}
+
+	/**
+	 * Render date and time format settings.
+	 *
+	 * @return void
+	 */
+	public function render_datetime() {
+		$settings = myp_telegram_settings()->get_settings();
+		$preview  = myp_telegram_format_datetime();
+		$timezone = wp_timezone_string();
+		$this->page_header( __( 'Date & Time Format', 'telegram-bot' ), __( 'Choose how dates and times appear in Telegram notifications and plugin logs.', 'telegram-bot' ) );
+		$this->render_notice();
+		include MYP_TELEGRAM_DIR . 'admin/views/datetime.php';
 	}
 
 	/**

@@ -67,6 +67,20 @@ class MYP_Telegram_GitHub_Updater {
 	const REQUIRES_PHP = '8.2';
 
 	/**
+	 * Fallback release date shown when GitHub has no published release yet.
+	 *
+	 * @var string
+	 */
+	const LAST_UPDATED = '2026-08-18T09:10:22+07:00';
+
+	/**
+	 * Plugin-relative banner and screenshot image path.
+	 *
+	 * @var string
+	 */
+	const IMAGE_PATH = 'assets/images/telegram-bot-trigger-notifications.png';
+
+	/**
 	 * Singleton instance.
 	 *
 	 * @var MYP_Telegram_GitHub_Updater|null
@@ -249,10 +263,10 @@ class MYP_Telegram_GitHub_Updater {
 		$release = $this->get_latest_release();
 		$version = $release ? $this->normalize_version( $release['tag_name'] ) : $this->get_plugin_version();
 
-		$sections = array(
-			'description' => __( 'Sends configurable Telegram notifications for WordPress content, comments, users, system/plugin updates, and popular third-party integrations.', 'telegram-bot' ),
-			'changelog'   => ! empty( $release['body'] ) ? wp_kses_post( $release['body'] ) : __( 'See the GitHub release notes for the latest changes.', 'telegram-bot' ),
-		);
+		$banner_url       = MYP_TELEGRAM_URL . self::IMAGE_PATH;
+		$build_timestamp  = strtotime( self::LAST_UPDATED );
+		$build_information = myp_telegram_format_datetime( false !== $build_timestamp ? $build_timestamp : time() );
+		$sections         = $this->get_plugin_sections( $release, $banner_url, $build_information );
 
 		return (object) array(
 			'name'            => 'Telegram Bot Trigger Notifications',
@@ -263,13 +277,107 @@ class MYP_Telegram_GitHub_Updater {
 			'homepage'        => self::HOMEPAGE,
 			'download_link'   => $release && ! empty( $release['download_url'] ) ? $release['download_url'] : '',
 			'sections'        => $sections,
+			'short_description' => __( 'Send configurable WordPress activity and update notifications directly to Telegram.', 'telegram-bot' ),
 			'requires'        => self::REQUIRES_WP,
 			'tested'          => self::TESTED_WP,
 			'requires_php'    => self::REQUIRES_PHP,
-			'last_updated'    => ! empty( $release['published_at'] ) ? $release['published_at'] : '',
+			'last_updated'    => self::LAST_UPDATED,
 			'icons'           => array(),
-			'banners'         => array(),
+			'banners'         => array(
+				'low'  => $banner_url,
+				'high' => $banner_url,
+			),
+			'screenshots'     => array(
+				1 => array(
+					'src'     => $banner_url,
+					'caption' => __( 'Telegram Bot Trigger Notifications for WordPress.', 'telegram-bot' ),
+				),
+			),
+			'num_ratings'     => 0,
+			'ratings'         => array(),
 			'external'        => true,
+		);
+	}
+
+	/**
+	 * Build the content tabs displayed in WordPress's plugin details modal.
+	 *
+	 * @param array<string, string>|null $release           Latest GitHub release data.
+	 * @param string                     $banner_url        Local banner URL.
+	 * @param string                     $build_information Formatted build date and time.
+	 * @return array<string, string>
+	 */
+	private function get_plugin_sections( $release, $banner_url, $build_information ) {
+		$changelog = ! empty( $release['body'] )
+			? wpautop( wp_kses_post( $release['body'] ) )
+			: '<h3>' . esc_html__( 'Version 1.0.0', 'telegram-bot' ) . '</h3>' .
+				'<ul>' .
+				'<li>' . esc_html__( 'Initial GitHub release and custom WordPress update integration.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Responsive administration dashboard, settings, triggers, alerts, templates, and logs.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Configurable date and time formats for Telegram alerts and logs.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Custom plugin details modal that does not use third-party WordPress.org metadata.', 'telegram-bot' ) . '</li>' .
+				'</ul>';
+
+		return array(
+			'description'  =>
+				'<p>' . esc_html__( 'Telegram Bot Trigger Notifications connects WordPress to Telegram and sends configurable, real-time alerts for important website activity.', 'telegram-bot' ) . '</p>' .
+				'<h3>' . esc_html__( 'What it can notify you about', 'telegram-bot' ) . '</h3>' .
+				'<ul>' .
+				'<li>' . esc_html__( 'Posts, pages, custom post types, media, and comment activity.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'User registration, login, logout, role, password-reset, and account events.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Plugin, theme, WordPress core, language-pack, and available-update alerts.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'WooCommerce and popular form-plugin submissions through optional integrations.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Multiple Telegram recipients, duplicate suppression, message formatting, diagnostic logs, shortcodes, and developer hooks.', 'telegram-bot' ) . '</li>' .
+				'</ul>' .
+				'<p>' . esc_html__( 'Build information:', 'telegram-bot' ) . ' <strong>' . esc_html( $build_information ) . ' (' . esc_html( wp_timezone_string() ) . ')</strong>.</p>' .
+				'<p><strong>' . esc_html__( 'Repository:', 'telegram-bot' ) . '</strong> <a href="' . esc_url( self::HOMEPAGE ) . '">neth-ai/Telegram-Trigger-Wordpress</a></p>',
+			'installation' =>
+				'<h3>' . esc_html__( 'Set up the plugin', 'telegram-bot' ) . '</h3>' .
+				'<ol>' .
+				'<li>' . esc_html__( 'Install the telegram-bot release ZIP from Plugins → Add Plugin → Upload Plugin.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Activate Telegram Bot Trigger Notifications.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Open Telegram-Bot → Telegram Settings.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Create a Telegram bot with @BotFather and copy its bot token.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Add one or more chat IDs, enable delivery, and save the settings.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Return to the Dashboard and send a test message.', 'telegram-bot' ) . '</li>' .
+				'<li>' . esc_html__( 'Choose the events you need under Triggers and Alerts.', 'telegram-bot' ) . '</li>' .
+				'</ol>' .
+				'<p><strong>' . esc_html__( 'Requirements:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'WordPress 6.9 or newer and PHP 8.2 or newer.', 'telegram-bot' ) . '</p>',
+			'faq'          =>
+				'<h3>' . esc_html__( 'Where do I get a bot token?', 'telegram-bot' ) . '</h3>' .
+				'<p>' . esc_html__( 'Open Telegram, message @BotFather, send /newbot, and follow its instructions.', 'telegram-bot' ) . '</p>' .
+				'<h3>' . esc_html__( 'Can I notify multiple chats?', 'telegram-bot' ) . '</h3>' .
+				'<p>' . esc_html__( 'Yes. Enter multiple chat IDs separated by commas. Users, groups, and channels are supported when the bot has permission to post.', 'telegram-bot' ) . '</p>' .
+				'<h3>' . esc_html__( 'Why did my test message fail?', 'telegram-bot' ) . '</h3>' .
+				'<p>' . esc_html__( 'Check the bot token, chat ID, bot membership and posting permissions, then review Telegram-Bot → Logs.', 'telegram-bot' ) . '</p>' .
+				'<h3>' . esc_html__( 'Does the plugin send passwords or private authentication data?', 'telegram-bot' ) . '</h3>' .
+				'<p>' . esc_html__( 'No. Passwords, password hashes, cookies, session data, IP addresses, and reset tokens are excluded from user alerts.', 'telegram-bot' ) . '</p>' .
+				'<h3>' . esc_html__( 'How are plugin updates delivered?', 'telegram-bot' ) . '</h3>' .
+				'<p>' . esc_html__( 'The plugin checks this project’s GitHub releases and installs only a matching telegram-bot release ZIP.', 'telegram-bot' ) . '</p>',
+			'changelog'    => $changelog,
+			'screenshots'  =>
+				'<ol>' .
+				'<li><img src="' . esc_url( $banner_url ) . '" alt="' . esc_attr__( 'Telegram Bot Trigger Notifications banner', 'telegram-bot' ) . '"><p>' . esc_html__( 'WordPress activity flowing to Telegram notifications.', 'telegram-bot' ) . '</p></li>' .
+				'</ol>',
+			'valuations'   =>
+				'<h3>' . esc_html__( 'Ratings and feedback', 'telegram-bot' ) . '</h3>' .
+				'<p>' . esc_html__( 'This custom GitHub plugin does not import ratings from an unrelated WordPress.org listing. No rating is displayed until the project has its own verified feedback source.', 'telegram-bot' ) . '</p>' .
+				'<p>' . esc_html__( 'To report a problem or suggest an improvement, use the project’s GitHub Issues page.', 'telegram-bot' ) . '</p>' .
+				'<p><a href="' . esc_url( self::HOMEPAGE . '/issues' ) . '">' . esc_html__( 'Open GitHub Issues', 'telegram-bot' ) . '</a></p>',
+			'usage_guide'  =>
+				'<h3>' . esc_html__( 'Using the plugin in WordPress', 'telegram-bot' ) . '</h3>' .
+				'<ul>' .
+				'<li><strong>' . esc_html__( 'Dashboard:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Review connection status, configuration progress, recipients, and send a test notification.', 'telegram-bot' ) . '</li>' .
+				'<li><strong>' . esc_html__( 'Telegram Settings:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Manage the bot token, chat IDs, formatting, previews, and duplicate suppression.', 'telegram-bot' ) . '</li>' .
+				'<li><strong>' . esc_html__( 'Triggers:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Choose content, media, comment, and supported integration events.', 'telegram-bot' ) . '</li>' .
+				'<li><strong>' . esc_html__( 'Alerts:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Choose user, security, system, and available-update notifications.', 'telegram-bot' ) . '</li>' .
+				'<li><strong>' . esc_html__( 'Date & Time Format:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Choose DMY, MDY, or YMD dates, month and year styles, separators, a 12/24-hour clock, and optional seconds.', 'telegram-bot' ) . '</li>' .
+				'<li><strong>' . esc_html__( 'Templates & Developer:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Use the shortcode, action hook, helper, and message filter for custom workflows.', 'telegram-bot' ) . '</li>' .
+				'<li><strong>' . esc_html__( 'Logs:', 'telegram-bot' ) . '</strong> ' . esc_html__( 'Review recent delivery errors and diagnostic activity without exposing bot tokens.', 'telegram-bot' ) . '</li>' .
+				'</ul>' .
+				'<h3>' . esc_html__( 'Developer usage', 'telegram-bot' ) . '</h3>' .
+				'<p><code>[myp_telegram message=&quot;Hello from WordPress&quot;]</code></p>' .
+				'<p><code>do_action( &quot;myp_telegram_send&quot;, &quot;Your message here&quot; );</code></p>',
 		);
 	}
 
@@ -316,7 +424,10 @@ class MYP_Telegram_GitHub_Updater {
 			'requires'     => ! empty( $plugin_data['RequiresWP'] ) ? $plugin_data['RequiresWP'] : self::REQUIRES_WP,
 			'requires_php' => ! empty( $plugin_data['RequiresPHP'] ) ? $plugin_data['RequiresPHP'] : self::REQUIRES_PHP,
 			'icons'        => array(),
-			'banners'      => array(),
+			'banners'      => array(
+				'low'  => MYP_TELEGRAM_URL . self::IMAGE_PATH,
+				'high' => MYP_TELEGRAM_URL . self::IMAGE_PATH,
+			),
 		);
 	}
 
@@ -341,7 +452,10 @@ class MYP_Telegram_GitHub_Updater {
 			'requires'     => ! empty( $plugin_data['RequiresWP'] ) ? $plugin_data['RequiresWP'] : self::REQUIRES_WP,
 			'requires_php' => ! empty( $plugin_data['RequiresPHP'] ) ? $plugin_data['RequiresPHP'] : self::REQUIRES_PHP,
 			'icons'        => array(),
-			'banners'      => array(),
+			'banners'      => array(
+				'low'  => MYP_TELEGRAM_URL . self::IMAGE_PATH,
+				'high' => MYP_TELEGRAM_URL . self::IMAGE_PATH,
+			),
 		);
 	}
 

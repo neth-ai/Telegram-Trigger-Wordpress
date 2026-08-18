@@ -55,7 +55,7 @@ class MYP_Telegram_Logger {
 		array_unshift(
 			$logs,
 			array(
-				'time'    => wp_date( 'Y-m-d H:i:s', null, wp_timezone() ),
+				'time'    => myp_telegram_format_datetime(),
 				'context' => sanitize_key( (string) $context ),
 				'message' => sanitize_text_field( (string) $message ),
 				'level'   => in_array( $level, array( 'info', 'warning', 'error' ), true ) ? $level : 'info',

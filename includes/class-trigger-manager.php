@@ -296,7 +296,7 @@ class MYP_Telegram_Trigger_Manager {
 			( $khmer ? 'សកម្មភាព: ' : 'Action: ' ) . $action,
 			( $khmer ? 'ចំណងជើង: ' : 'Title: ' ) . $title,
 			( $khmer ? 'អនុវត្តដោយ: ' : 'By: ' ) . $this->action_user( $post ),
-			( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . wp_date( 'd F Y, H:i:s', null, wp_timezone() ),
+			( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime(),
 		);
 
 		if ( $is_published && '' !== $terms ) {
@@ -346,7 +346,7 @@ class MYP_Telegram_Trigger_Manager {
 		}
 
 		$lines[] = ( $khmer ? 'អនុវត្តដោយ: ' : 'By: ' ) . $this->current_user_name();
-		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . wp_date( 'd F Y, H:i:s', null, wp_timezone() );
+		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime();
 
 		return MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
 	}
@@ -393,7 +393,7 @@ class MYP_Telegram_Trigger_Manager {
 		}
 
 		$lines[] = ( $khmer ? 'អនុវត្តដោយ: ' : 'By: ' ) . $actor_name;
-		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . wp_date( 'd F Y, H:i:s', null, wp_timezone() );
+		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime();
 
 		return MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
 	}
@@ -695,7 +695,7 @@ class MYP_Telegram_Trigger_Manager {
 			}
 		}
 
-		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . wp_date( 'd F Y, H:i:s', null, wp_timezone() );
+		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime();
 
 		return MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
 	}
@@ -830,7 +830,7 @@ class MYP_Telegram_Trigger_Manager {
 			'⚠️ ' . ( $khmer ? 'Failed Login Alert' : 'Failed Login Alert' ),
 			'',
 			( $khmer ? 'ឈ្មោះដែលបានប៉ុនប៉ង: ' : 'Attempted username: ' ) . $username,
-			( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . wp_date( 'd F Y, H:i:s', null, wp_timezone() ),
+			( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime(),
 		);
 
 		MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
