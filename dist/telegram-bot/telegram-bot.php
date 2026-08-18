@@ -1,13 +1,15 @@
 <?php
 /**
- * Plugin Name:       Telegram Bot Notifications
- * Plugin URI:        https://example.com/telegram-bot-notifications
+ * Plugin Name:       Telegram Bot Trigger Notifications
+ * Plugin URI:        https://github.com/neth-ai/Telegram-Trigger-Wordpress
  * Description:       Sends configurable Telegram notifications for WordPress content, comments, users, system/plugin updates, and popular third-party integrations.
  * Version:           1.0.0
- * Requires at least: 5.8
- * Requires PHP:      7.4
+ * Requires at least: 6.9
+ * Requires PHP:      8.2
+ * Tested up to:      6.9
  * Author:            Neth
- * Author URI:        https://example.com
+ * Author URI:        https://github.com/neth-ai
+ * Update URI:        https://github.com/neth-ai/Telegram-Trigger-Wordpress
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       telegram-bot

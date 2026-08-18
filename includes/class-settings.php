@@ -270,7 +270,7 @@ class MYP_Telegram_Settings {
 			$settings[ $group ]['enabled'] = empty( $settings[ $group ]['enabled'] ) ? 0 : 1;
 
 			if ( isset( $settings[ $group ]['events'] ) ) {
-				$allowed                     = array_keys( $defaults[ $group ]['events'] );
+				$allowed                     = array_values( $defaults[ $group ]['events'] );
 				$settings[ $group ]['events'] = array_values( array_intersect( (array) $settings[ $group ]['events'], $allowed ) );
 			}
 		}
@@ -334,9 +334,18 @@ class MYP_Telegram_Settings {
 	 * @return string
 	 */
 	private function sanitize_parse_mode( $mode ) {
-		$mode = sanitize_key( (string) $mode );
+		$mode       = sanitize_text_field( (string) $mode );
+		$normalized = strtolower( $mode );
 
-		return in_array( $mode, array( 'HTML', 'MarkdownV2' ), true ) ? $mode : '';
+		if ( 'html' === $normalized ) {
+			return 'HTML';
+		}
+
+		if ( 'markdownv2' === $normalized ) {
+			return 'MarkdownV2';
+		}
+
+		return '';
 	}
 
 	/**
@@ -350,7 +359,12 @@ class MYP_Telegram_Settings {
 		$merged = $base;
 
 		foreach ( $new as $key => $value ) {
-			if ( is_array( $value ) && isset( $merged[ $key ] ) && is_array( $merged[ $key ] ) ) {
+			if (
+				is_array( $value ) &&
+				! wp_is_numeric_array( $value ) &&
+				isset( $merged[ $key ] ) &&
+				is_array( $merged[ $key ] )
+			) {
 				$merged[ $key ] = $this->deep_merge( $merged[ $key ], $value );
 			} else {
 				$merged[ $key ] = $value;

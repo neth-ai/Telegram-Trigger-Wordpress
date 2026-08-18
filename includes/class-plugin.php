@@ -57,6 +57,7 @@ class MYP_Telegram_Plugin {
 		require_once MYP_TELEGRAM_DIR . 'includes/class-template-manager.php';
 		require_once MYP_TELEGRAM_DIR . 'includes/class-logger.php';
 		require_once MYP_TELEGRAM_DIR . 'includes/class-notification-manager.php';
+		require_once MYP_TELEGRAM_DIR . 'includes/class-github-updater.php';
 		require_once MYP_TELEGRAM_DIR . 'includes/class-trigger-manager.php';
 		require_once MYP_TELEGRAM_DIR . 'includes/class-integrations.php';
 		require_once MYP_TELEGRAM_DIR . 'modules/class-news-module.php';
@@ -71,6 +72,7 @@ class MYP_Telegram_Plugin {
 		MYP_Telegram_Template_Manager::instance();
 		MYP_Telegram_Logger::instance();
 		MYP_Telegram_Notification_Manager::instance();
+		MYP_Telegram_GitHub_Updater::instance();
 		MYP_Telegram_Trigger_Manager::instance();
 		MYP_Telegram_Integrations::instance();
 		MYP_Telegram_News_Module::register();
@@ -93,6 +95,8 @@ class MYP_Telegram_Plugin {
 
 		MYP_Telegram_Settings::instance()->ensure_defaults();
 		MYP_Telegram_Settings::instance()->schedule_available_updates_cron();
+		delete_site_transient( 'update_plugins' );
+		delete_transient( 'myp_telegram_github_release' );
 	}
 
 	/**
@@ -104,6 +108,7 @@ class MYP_Telegram_Plugin {
 		require_once MYP_TELEGRAM_DIR . 'includes/class-settings.php';
 
 		MYP_Telegram_Settings::instance()->clear_available_updates_cron();
+		delete_transient( 'myp_telegram_github_release' );
 	}
 
 	/**

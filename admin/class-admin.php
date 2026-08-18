@@ -76,12 +76,17 @@ class MYP_Telegram_Admin {
 	 * @return void
 	 */
 	public function enqueue_assets( $hook_suffix ) {
-		if ( 0 !== strpos( $hook_suffix, 'myp-telegram' ) ) {
+		if ( false === strpos( $hook_suffix, 'myp-telegram' ) ) {
 			return;
 		}
 
-		wp_enqueue_style( 'myp-telegram-admin', MYP_TELEGRAM_URL . 'assets/css/admin.css', array(), MYP_TELEGRAM_VERSION );
-		wp_enqueue_script( 'myp-telegram-admin', MYP_TELEGRAM_URL . 'assets/js/admin.js', array(), MYP_TELEGRAM_VERSION, true );
+		$style_path     = MYP_TELEGRAM_DIR . 'assets/css/admin.css';
+		$script_path    = MYP_TELEGRAM_DIR . 'assets/js/admin.js';
+		$style_version  = file_exists( $style_path ) ? (string) filemtime( $style_path ) : MYP_TELEGRAM_VERSION;
+		$script_version = file_exists( $script_path ) ? (string) filemtime( $script_path ) : MYP_TELEGRAM_VERSION;
+
+		wp_enqueue_style( 'myp-telegram-admin', MYP_TELEGRAM_URL . 'assets/css/admin.css', array(), $style_version );
+		wp_enqueue_script( 'myp-telegram-admin', MYP_TELEGRAM_URL . 'assets/js/admin.js', array(), $script_version, true );
 	}
 
 	/**
@@ -184,7 +189,7 @@ class MYP_Telegram_Admin {
 			$input['enabled']                  = isset( $posted['enabled'] ) ? 1 : 0;
 			$input['bot_token']                = isset( $posted['bot_token'] ) ? sanitize_text_field( $posted['bot_token'] ) : '';
 			$input['chat_ids']                 = isset( $posted['chat_ids'] ) ? sanitize_text_field( $posted['chat_ids'] ) : '';
-			$input['parse_mode']               = isset( $posted['parse_mode'] ) ? sanitize_key( $posted['parse_mode'] ) : '';
+			$input['parse_mode']               = isset( $posted['parse_mode'] ) ? sanitize_text_field( $posted['parse_mode'] ) : '';
 			$input['disable_web_page_preview'] = isset( $posted['disable_web_page_preview'] ) ? 1 : 0;
 			$input['duplicate_ttl']            = isset( $posted['duplicate_ttl'] ) ? (int) $posted['duplicate_ttl'] : 15;
 		}
@@ -429,7 +434,7 @@ class MYP_Telegram_Admin {
 
 		foreach ( $events as $key => $label ) {
 			printf(
-				'<label><input type="checkbox" name="%1$s[events][]" value="%2$s" %3$s> %4$s</label>',
+				'<label class="myp-choice"><input type="checkbox" name="%1$s[events][]" value="%2$s" %3$s><span>%4$s</span></label>',
 				esc_attr( $prefix ),
 				esc_attr( $key ),
 				checked( in_array( $key, $current, true ), true, false ),
@@ -449,8 +454,15 @@ class MYP_Telegram_Admin {
 	 */
 	private function page_header( $title, $description ) {
 		echo '<div class="wrap myp-wrap">';
+		echo '<header class="myp-page-header">';
+		echo '<div class="myp-page-header__icon" aria-hidden="true"><span class="dashicons dashicons-format-chat"></span></div>';
+		echo '<div class="myp-page-header__copy">';
+		echo '<span class="myp-eyebrow">' . esc_html__( 'Telegram Bot Trigger Notifications', 'telegram-bot' ) . '</span>';
 		echo '<h1>' . esc_html( $title ) . '</h1>';
 		echo '<p class="myp-lead">' . esc_html( $description ) . '</p>';
+		echo '</div>';
+		echo '<span class="myp-version">v' . esc_html( MYP_TELEGRAM_VERSION ) . '</span>';
+		echo '</header>';
 	}
 
 	/**

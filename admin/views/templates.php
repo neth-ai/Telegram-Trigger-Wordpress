@@ -40,3 +40,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<li><strong>LearnDash / LifterLMS / Tutor LMS</strong> — enrollments, quiz submissions, and course completion.</li>
 	</ul>
 </div>
+</div>

@@ -1,9 +1,9 @@
-=== Telegram Bot Notifications ===
+=== Telegram Bot Trigger Notifications ===
 Contributors: Neth
 Tags: telegram, notifications, bot, admin, security
-Requires at least: 5.8
-Tested up to: 6.8
-Requires PHP: 7.4
+Requires at least: 6.9
+Tested up to: 6.9
+Requires PHP: 8.2
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -12,7 +12,7 @@ Sends configurable Telegram notifications for WordPress content, comments, users
 
 == Description ==
 
-Telegram Bot Notifications turns your WordPress admin activity into real-time messages in Telegram.
+Telegram Bot Trigger Notifications turns your WordPress admin activity into real-time messages in Telegram.
 
 Once you install and activate the plugin, a **Telegram-Bot** menu appears in wp-admin. The dashboard lets you enter your BotFather bot token and one or more chat IDs, then test delivery immediately.
 
@@ -51,6 +51,10 @@ Yes. Separate chat IDs with commas in the dashboard, for example `123456789,-100
 = Does the plugin send sensitive data? =
 
 No. User alerts intentionally exclude passwords, password hashes, email addresses, IP addresses, session data, cookies, and reset tokens. Form integrations send only form name and entry ID by default.
+
+= How do updates work? =
+
+The plugin uses GitHub releases from https://github.com/neth-ai/Telegram-Trigger-Wordpress. Create a release tag such as `v1.0.1` and attach a ZIP named `telegram-bot-v1.0.1.zip` containing the `telegram-bot/` folder. An update is advertised only when that matching, installable release asset exists.
 
 == Changelog ==
 

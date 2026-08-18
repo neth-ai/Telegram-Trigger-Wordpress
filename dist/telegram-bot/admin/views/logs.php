@@ -45,3 +45,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<button type="submit" class="button"><?php esc_html_e( 'Clear logs', 'telegram-bot' ); ?></button>
 	</p>
 </form>
+</div>
