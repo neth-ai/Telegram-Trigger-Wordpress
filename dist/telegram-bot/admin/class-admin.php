@@ -86,7 +86,8 @@ class MYP_Telegram_Admin {
 		$style_version  = file_exists( $style_path ) ? (string) filemtime( $style_path ) : MYP_TELEGRAM_VERSION;
 		$script_version = file_exists( $script_path ) ? (string) filemtime( $script_path ) : MYP_TELEGRAM_VERSION;
 
-		wp_enqueue_style( 'myp-telegram-admin', MYP_TELEGRAM_URL . 'assets/css/admin.css', array(), $style_version );
+		wp_enqueue_style( 'dashicons' );
+		wp_enqueue_style( 'myp-telegram-admin', MYP_TELEGRAM_URL . 'assets/css/admin.css', array( 'dashicons' ), $style_version );
 		wp_enqueue_script( 'myp-telegram-admin', MYP_TELEGRAM_URL . 'assets/js/admin.js', array(), $script_version, true );
 	}
 

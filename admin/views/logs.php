@@ -15,26 +15,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php if ( empty( $logs ) ) : ?>
 		<p class="myp-card__desc"><?php esc_html_e( 'No diagnostic entries have been recorded yet.', 'telegram-bot' ); ?></p>
 	<?php else : ?>
-		<table class="widefat striped">
-			<thead>
-				<tr>
-					<th><?php esc_html_e( 'Time', 'telegram-bot' ); ?></th>
-					<th><?php esc_html_e( 'Context', 'telegram-bot' ); ?></th>
-					<th><?php esc_html_e( 'Level', 'telegram-bot' ); ?></th>
-					<th><?php esc_html_e( 'Message', 'telegram-bot' ); ?></th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php foreach ( $logs as $log ) : ?>
+		<div class="myp-table-scroll" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Recent Telegram Bot log entries', 'telegram-bot' ); ?>">
+			<table class="widefat striped">
+				<thead>
 					<tr>
-						<td><?php echo esc_html( $log['time'] ); ?></td>
-						<td><?php echo esc_html( $log['context'] ); ?></td>
-						<td><?php echo esc_html( $log['level'] ); ?></td>
-						<td><?php echo esc_html( $log['message'] ); ?></td>
+						<th><?php esc_html_e( 'Time', 'telegram-bot' ); ?></th>
+						<th><?php esc_html_e( 'Context', 'telegram-bot' ); ?></th>
+						<th><?php esc_html_e( 'Level', 'telegram-bot' ); ?></th>
+						<th><?php esc_html_e( 'Message', 'telegram-bot' ); ?></th>
 					</tr>
-				<?php endforeach; ?>
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					<?php foreach ( $logs as $log ) : ?>
+						<tr>
+							<td><?php echo esc_html( $log['time'] ); ?></td>
+							<td><?php echo esc_html( $log['context'] ); ?></td>
+							<td><?php echo esc_html( $log['level'] ); ?></td>
+							<td><?php echo esc_html( $log['message'] ); ?></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
 	<?php endif; ?>
 </div>
 

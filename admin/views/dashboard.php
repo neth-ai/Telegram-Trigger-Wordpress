@@ -83,10 +83,11 @@ foreach ( $feature_groups as $group ) {
 		</div>
 		<div class="myp-hero__actions">
 			<a class="button button-primary myp-button" href="<?php echo esc_url( admin_url( 'admin.php?page=myp-telegram-settings' ) ); ?>">
-				<span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
+				<span class="dashicons <?php echo $configured ? 'dashicons-admin-generic' : 'dashicons-admin-links'; ?>" aria-hidden="true"></span>
 				<?php echo $configured ? esc_html__( 'Manage connection', 'telegram-bot' ) : esc_html__( 'Connect Telegram', 'telegram-bot' ); ?>
 			</a>
 			<a class="button myp-button myp-button--ghost" href="<?php echo esc_url( admin_url( 'admin.php?page=myp-telegram-triggers' ) ); ?>">
+				<span class="dashicons dashicons-filter" aria-hidden="true"></span>
 				<?php esc_html_e( 'Configure triggers', 'telegram-bot' ); ?>
 			</a>
 		</div>
