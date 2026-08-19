@@ -836,6 +836,13 @@
 	text-transform: uppercase;
 }
 
+.myp-section__desc {
+	color: var(--myp-muted);
+	font-size: 12px;
+	line-height: 1.5;
+	margin: -4px 0 14px;
+}
+
 .myp-check-grid {
 	display: grid;
 	gap: 10px;

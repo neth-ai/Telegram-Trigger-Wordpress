@@ -27,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="myp-section">
 			<div class="myp-section__title"><?php esc_html_e( 'Post types', 'telegram-bot' ); ?></div>
+			<p class="myp-section__desc"><?php esc_html_e( 'All registered post types shown in the WordPress admin menu are detected automatically, including private types added by themes, plugins, and MU plugins.', 'telegram-bot' ); ?></p>
 			<div class="myp-check-grid myp-check-grid--post-types">
 				<?php foreach ( $post_types as $type => $label ) : ?>
 					<label class="myp-choice myp-choice--post-type">

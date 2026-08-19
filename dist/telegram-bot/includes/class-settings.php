@@ -424,8 +424,7 @@ class MYP_Telegram_Settings {
 	public function get_available_post_types() {
 		$types = get_post_types(
 			array(
-				'public'             => true,
-				'publicly_queryable' => true,
+				'show_ui' => true,
 			),
 			'objects'
 		);
@@ -433,22 +432,41 @@ class MYP_Telegram_Settings {
 		$result = array();
 
 		foreach ( $types as $name => $object ) {
+			if ( 'attachment' === $name || empty( $object->show_in_menu ) ) {
+				continue;
+			}
+
 			$result[ $name ] = $object->labels->singular_name ?: $object->label;
 		}
 
-		$common = array(
-			'post'        => __( 'Posts', 'telegram-bot' ),
-			'page'        => __( 'Pages', 'telegram-bot' ),
-			'news'        => __( 'News', 'telegram-bot' ),
-			'documents'   => __( 'Documents', 'telegram-bot' ),
-			'annoucement' => __( 'Announcements', 'telegram-bot' ),
-		);
+		/**
+		 * Filter the post types offered by the content trigger screen.
+		 *
+		 * Post types with an admin UI and menu are discovered automatically,
+		 * including private post types registered by themes and MU plugins.
+		 *
+		 * @param array<string, string>         $result Trackable post-type labels keyed by slug.
+		 * @param array<string, WP_Post_Type> $types  Registered post-type objects with an admin UI.
+		 */
+		$result = apply_filters( 'myp_telegram_available_post_types', $result, $types );
+		$result = is_array( $result ) ? $result : array();
 
-		foreach ( $common as $name => $label ) {
-			$result[ $name ] = $label;
+		foreach ( $result as $name => $label ) {
+			$sanitized_name = sanitize_key( $name );
+
+			if ( '' === $sanitized_name || 'attachment' === $sanitized_name || ! is_scalar( $label ) ) {
+				unset( $result[ $name ] );
+				continue;
+			}
+
+			if ( $sanitized_name !== $name ) {
+				unset( $result[ $name ] );
+			}
+
+			$result[ $sanitized_name ] = sanitize_text_field( (string) $label );
 		}
 
-		asort( $result );
+		natcasesort( $result );
 
 		return $result;
 	}
