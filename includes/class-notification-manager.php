@@ -90,15 +90,14 @@ class MYP_Telegram_Notification_Manager {
 	 * @return bool
 	 */
 	public function send_failed_login_alert( $username ) {
-		$username = MYP_Telegram_Template_Manager::instance()->safe_text( $username, 100 );
-		$khmer    = MYP_Telegram_Template_Manager::instance()->is_khmer_locale();
-		$lines    = array(
-			'⚠️ ' . ( $khmer ? 'Failed Login Alert' : 'Failed Login Alert' ),
-			'',
-			( $khmer ? 'ឈ្មោះដែលបានប៉ុនប៉ង: ' : 'Attempted username: ' ) . $username,
-			( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime(),
+		$message = MYP_Telegram_Template_Manager::instance()->format_message(
+			'failed_login',
+			array(
+				'account_user' => MYP_Telegram_Template_Manager::instance()->safe_text( $username, 100 ),
+				'time'         => myp_telegram_format_datetime(),
+			)
 		);
 
-		return MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
+		return MYP_Telegram_API::instance()->send( $message );
 	}
 }

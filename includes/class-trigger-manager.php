@@ -288,26 +288,20 @@ class MYP_Telegram_Trigger_Manager {
 		$action      = $this->safe_text( $action, 150 );
 		$is_published = 'publish' === $post->post_status;
 
-		$khmer = $this->is_khmer_locale();
-		$lines = array(
-			$khmer ? '🔔 Telegram Content Activity' : '🔔 Telegram Content Activity',
-			'',
-			( $khmer ? 'មុីនុយ: ' : 'Type: ' ) . $this->content_type_label( $post ),
-			( $khmer ? 'សកម្មភាព: ' : 'Action: ' ) . $action,
-			( $khmer ? 'ចំណងជើង: ' : 'Title: ' ) . $title,
-			( $khmer ? 'អនុវត្តដោយ: ' : 'By: ' ) . $this->action_user( $post ),
-			( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime(),
+		$message = MYP_Telegram_Template_Manager::instance()->format_message(
+			'content',
+			array(
+				'type'          => $this->content_type_label( $post ),
+				'action_text'   => $action,
+				'content_title' => $title,
+				'by'            => $this->action_user( $post ),
+				'time'          => myp_telegram_format_datetime(),
+				'categories'    => $is_published ? $terms : '',
+				'link'          => $is_published ? $url : '',
+			)
 		);
 
-		if ( $is_published && '' !== $terms ) {
-			$lines[] = ( $khmer ? 'Categories: ' : 'Categories: ' ) . $terms;
-		}
-
-		if ( $is_published && '' !== $url ) {
-			$lines[] = ( $khmer ? 'Link: ' : 'Link: ' ) . $url;
-		}
-
-		return MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
+		return MYP_Telegram_API::instance()->send( $message );
 	}
 
 	/**
@@ -329,26 +323,19 @@ class MYP_Telegram_Trigger_Manager {
 			return false;
 		}
 
-		$khmer = $this->is_khmer_locale();
-		$lines = array(
-			$khmer ? '🟥 SYSTEM ALERT' : '🟥 SYSTEM ALERT',
-			'',
-			( $khmer ? 'សកម្មភាព: ' : 'Action: ' ) . $action,
-			( $khmer ? 'ប្រភេទ: ' : 'Component: ' ) . $component,
+		$message = MYP_Telegram_Template_Manager::instance()->format_message(
+			'system',
+			array(
+				'action_text' => $action,
+				'component'   => $component,
+				'item'        => $item,
+				'version'     => $version,
+				'by'          => $this->current_user_name(),
+				'time'        => myp_telegram_format_datetime(),
+			)
 		);
 
-		if ( '' !== $item ) {
-			$lines[] = ( $khmer ? 'ឈ្មោះ: ' : 'Item: ' ) . $item;
-		}
-
-		if ( '' !== $version ) {
-			$lines[] = ( $khmer ? 'កំណែ: ' : 'Version: ' ) . $version;
-		}
-
-		$lines[] = ( $khmer ? 'អនុវត្តដោយ: ' : 'By: ' ) . $this->current_user_name();
-		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime();
-
-		return MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
+		return MYP_Telegram_API::instance()->send( $message );
 	}
 
 	/**
@@ -379,23 +366,19 @@ class MYP_Telegram_Trigger_Manager {
 			? $this->user_account_label( $actor )
 			: $this->current_user_name();
 
-		$khmer = $this->is_khmer_locale();
-		$lines = array(
-			$khmer ? '🟥 USER ALERT' : '🟥 USER ALERT',
-			'',
-			( $khmer ? 'សកម្មភាព: ' : 'Action: ' ) . $action,
-			( $khmer ? 'គណនី: ' : 'Account: ' ) . $account,
-			( $khmer ? 'តួនាទី: ' : 'Role: ' ) . $this->user_roles( $user ),
+		$message = MYP_Telegram_Template_Manager::instance()->format_message(
+			'user',
+			array(
+				'action_text'  => $action,
+				'account_user' => $account,
+				'role'         => $this->user_roles( $user ),
+				'detail'       => $detail,
+				'by'           => $actor_name,
+				'time'         => myp_telegram_format_datetime(),
+			)
 		);
 
-		if ( '' !== $detail ) {
-			$lines[] = ( $khmer ? 'ព័ត៌មាន: ' : 'Detail: ' ) . $detail;
-		}
-
-		$lines[] = ( $khmer ? 'អនុវត្តដោយ: ' : 'By: ' ) . $actor_name;
-		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime();
-
-		return MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
+		return MYP_Telegram_API::instance()->send( $message );
 	}
 
 	/**
@@ -676,28 +659,28 @@ class MYP_Telegram_Trigger_Manager {
 	 */
 	public function send_comment_alert( $comment, $action ) {
 		$post = get_post( $comment->comment_post_ID );
-		$khmer = $this->is_khmer_locale();
-		$lines = array(
-			'💬 ' . ( $khmer ? 'Comment Alert' : 'Comment Alert' ),
-			'',
-			( $khmer ? 'សកម្មភាព: ' : 'Action: ' ) . $this->safe_text( $action, 150 ),
-			( $khmer ? 'មតិ: ' : 'Comment: ' ) . $this->safe_text( $comment->comment_content, 300 ),
-			( $khmer ? 'អ្នកសរសេរ: ' : 'Author: ' ) . $this->safe_text( $comment->comment_author, 100 ),
+		$values = array(
+			'action_text'   => $this->safe_text( $action, 150 ),
+			'comment'       => $this->safe_text( $comment->comment_content, 300 ),
+			'author'        => $this->safe_text( $comment->comment_author, 100 ),
+			'content_title' => '',
+			'link'          => '',
+			'time'          => myp_telegram_format_datetime(),
 		);
 
 		if ( $post ) {
 			$title = get_the_title( $post->ID );
-			$lines[] = ( $khmer ? 'លើអត្ថបទ: ' : 'On: ' ) . $this->safe_text( '' !== $title ? $title : __( 'Untitled', 'telegram-bot' ), 250 );
+			$values['content_title'] = $this->safe_text( '' !== $title ? $title : __( 'Untitled', 'telegram-bot' ), 250 );
 
 			$url = $this->safe_public_url( get_comment_link( $comment ) ?: '' );
 			if ( '' !== $url ) {
-				$lines[] = ( $khmer ? 'Link: ' : 'Link: ' ) . $url;
+				$values['link'] = $url;
 			}
 		}
 
-		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime();
+		$message = MYP_Telegram_Template_Manager::instance()->format_message( 'comment', $values );
 
-		return MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
+		return MYP_Telegram_API::instance()->send( $message );
 	}
 
 	/**
@@ -824,16 +807,15 @@ class MYP_Telegram_Trigger_Manager {
 			return;
 		}
 
-		$username = $this->safe_text( $username, 100 );
-		$khmer    = $this->is_khmer_locale();
-		$lines    = array(
-			'⚠️ ' . ( $khmer ? 'Failed Login Alert' : 'Failed Login Alert' ),
-			'',
-			( $khmer ? 'ឈ្មោះដែលបានប៉ុនប៉ង: ' : 'Attempted username: ' ) . $username,
-			( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime(),
+		$message = MYP_Telegram_Template_Manager::instance()->format_message(
+			'failed_login',
+			array(
+				'account_user' => $this->safe_text( $username, 100 ),
+				'time'         => myp_telegram_format_datetime(),
+			)
 		);
 
-		MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
+		MYP_Telegram_API::instance()->send( $message );
 	}
 
 	/**
@@ -1283,10 +1265,7 @@ class MYP_Telegram_Trigger_Manager {
 			}
 		}
 
-		$lines = array(
-			'📦 ' . ( $this->is_khmer_locale() ? 'Available Updates' : 'Available Updates' ),
-			'',
-		);
+		$lines = array();
 
 		$khmer = $this->is_khmer_locale();
 		$lines[] = ( $khmer ? 'គេហទំព័រ: ' : 'Site: ' ) . wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
@@ -1316,9 +1295,18 @@ class MYP_Telegram_Trigger_Manager {
 			$lines[] = implode( ', ', $items );
 		}
 
-		$lines[] = '';
-		$lines[] = ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime();
+		while ( $lines && '' === end( $lines ) ) {
+			array_pop( $lines );
+		}
 
-		MYP_Telegram_API::instance()->send( implode( "\n", $lines ) );
+		$message = MYP_Telegram_Template_Manager::instance()->format_message(
+			'updates',
+			array(
+				'details' => implode( "\n", $lines ),
+				'time'    => myp_telegram_format_datetime(),
+			)
+		);
+
+		MYP_Telegram_API::instance()->send( $message );
 	}
 }

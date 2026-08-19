@@ -61,7 +61,8 @@ The **Telegram-Bot** menu and all subpages require the `manage_options` capabili
 3. Open **Telegram-Bot → Telegram Settings**.
 4. Add your BotFather token and chat ID.
 5. Return to **Dashboard** and send a test message.
-6. Enable the triggers under **Triggers** and **Alerts**.
+6. Customize notification wording under **Message Format** if needed.
+7. Enable the triggers under **Triggers** and **Alerts**.
 
 ## Using the plugin in WordPress
 
@@ -70,32 +71,33 @@ The **Telegram-Bot** menu and all subpages require the `manage_options` capabili
 - **Triggers** controls notifications for content, media, comments, WooCommerce, and supported form plugins.
 - **Alerts** controls user actions, login/security events, system changes, and scheduled available-update digests.
 - **Date & Time Format** controls DMY, MDY, or YMD order; numeric or named months; 2/4-digit years; separators; 12/24-hour clocks; optional seconds; and the message timezone. Cambodia time (`Asia/Phnom_Penh`) is the default, with an option to follow the WordPress site timezone.
+- **Message Format** customizes icons, labels, field order, and dynamic placeholders for content, user, system, comment, failed-login, integration, update-digest, and test messages. Optional user roles can be shown or hidden.
 - **Templates & Developer** documents the shortcode, action hook, helper function, and message filter.
 - **Logs** provides recent diagnostic information without logging bot tokens or private authentication data.
 
-The WordPress plugin-details modal includes project-owned Description, Installation, FAQ, Changelog, Screenshots, Valuations, and Usage Guide tabs. It does not import banners, ratings, or descriptions from unrelated WordPress.org plugins.
+## Release packages
 
-## GitHub updates
-
-This plugin checks the public GitHub releases for:
+The source repository is hosted at:
 
 ```text
 neth-ai/Telegram-Trigger-Wordpress
 ```
 
-When a release tag such as `v1.0.1` is newer than the installed version and has the matching release ZIP asset, WordPress will show an update in **Plugins**.
-
-The plugin dashboard also reads the latest GitHub Release tag. It shows the installed and latest versions, displays an upgrade action when a valid package is available, or explains which release ZIP is missing. Release information is refreshed every 15 minutes.
-
-For the update to install cleanly, attach a ZIP named like:
+For the initial `v1.0.0` release, create an installable package named:
 
 ```text
-telegram-bot-v1.0.1.zip
+telegram-bot-v1.0.0.zip
 ```
 
-to the GitHub release. The ZIP must contain the `telegram-bot/` plugin folder. GitHub's automatically generated source archive is intentionally not used because its top-level directory does not preserve the installed plugin basename. The plugin details modal also uses this GitHub repository instead of WordPress.org, so no third-party Telegram plugin metadata is shown.
+Build it from the repository root with:
 
-Release ZIP files are build artifacts and are ignored by Git. They can still be uploaded directly to a GitHub Release for users and WordPress auto-updates.
+```bash
+./build-release.sh
+```
+
+The ZIP must contain one top-level `telegram-bot/` folder. Do not install GitHub's automatically generated source archive: its versioned top-level directory does not match the `telegram-bot` text domain and includes repository-only files.
+
+Release ZIP files are build artifacts and are ignored by Git. This plugin follows the standard WordPress update system and does not modify WordPress update transients. GitHub builds can be updated manually by installing the newer release package.
 
 ## Custom development
 

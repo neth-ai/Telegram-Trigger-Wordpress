@@ -2,9 +2,9 @@
 Contributors: Neth
 Tags: telegram, notifications, bot, admin, security
 Requires at least: 6.9
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 8.2
-Stable tag: 1.0.1
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,12 +18,12 @@ Once you install and activate the plugin, a **Telegram-Bot** menu appears in wp-
 
 Features:
 
-* Content triggers for posts, pages, News, Documents, Announcements, and any public custom post type.
+* Content triggers for posts, pages, and registered admin-menu post types, including private types added by themes, plugins, and MU plugins.
 * Publish, edit, create, trash, restore, delete, media upload, and comment notifications.
 * User actions: registration, profile update, role change, login, logout, failed login, password reset, and account deletion.
 * System alerts: plugin activation/deactivation/deletion/update, theme switching/deletion/update, core updates, and language pack updates.
 * Optional available-updates digest.
-* Optional integrations for WooCommerce, Contact Form 7, WPForms, Fluent Forms, Ninja Forms, Elementor Forms, and Gravity Forms.
+* Optional integrations for WooCommerce, Contact Form 7, WPForms, Fluent Forms, Ninja Forms, Elementor Forms, and Gravity Forms, detected and registered only when their plugins are active.
 * Multi-chat support, duplicate suppression, HTML/MarkdownV2 parse modes, shortcode, action hook, and filter customization.
 * Configurable DMY, MDY, or YMD dates; month and year styles; separators; 12/24-hour time; optional seconds; and message timezone. Cambodia time is the default.
 
@@ -44,6 +44,7 @@ Build information: **18 សីហា 2026, 09:10:22 (Asia/Phnom_Penh)**.
 * **Triggers:** Select the content, media, comment, and supported integration events that should send notifications.
 * **Alerts:** Select user, login, security, plugin, theme, WordPress core, language, and available-update alerts.
 * **Date & Time Format:** Choose the message timezone, date order, month and year display, separator, 12/24-hour clock, and whether notifications include seconds.
+* **Message Format:** Customize icons, wording, field order, and placeholders for every built-in message type. The user-role line can be shown or hidden.
 * **Templates & Developer:** Use the shortcode, action hook, helper function, and message filter for custom workflows.
 * **Logs:** Review recent delivery errors and diagnostic entries. Bot tokens and private authentication data are not logged.
 
@@ -59,7 +60,9 @@ Send `/start` to @userinfobot or @get_id_bot. Group and channel IDs are availabl
 
 = Can I send to more than one chat? =
 
-Yes. Separate chat IDs with commas in the dashboard, for example `123456789,-1001234567890`.
+Yes. Separate group or channel IDs with commas. The plugin automatically saves every numeric ID with exactly one leading minus sign, so `5596463200`, `-5596463200`, and `--5596463200` all become `-5596463200`.
+
+Add the bot to each group or channel and grant it permission to post messages.
 
 = Does the plugin send sensitive data? =
 
@@ -67,7 +70,7 @@ No. User alerts intentionally exclude passwords, password hashes, email addresse
 
 = How do updates work? =
 
-The plugin uses GitHub releases from https://github.com/neth-ai/Telegram-Trigger-Wordpress. Create a release tag such as `v1.0.1` and attach a ZIP named `telegram-bot-v1.0.1.zip` containing the `telegram-bot/` folder. An update is advertised only when that matching, installable release asset exists.
+The plugin follows the standard WordPress update system and does not replace or modify WordPress update data. GitHub builds can be updated manually by installing a newer release package from https://github.com/neth-ai/Telegram-Trigger-Wordpress/releases.
 
 == Screenshots ==
 
@@ -79,15 +82,10 @@ This custom GitHub plugin does not import ratings from unrelated WordPress.org p
 
 == Changelog ==
 
-= 1.0.1 =
-* Added configurable date and time formats for every built-in Telegram notification and plugin log.
-* Added DMY, MDY, YMD, month style, year length, separator, message timezone, 12/24-hour clock, and optional seconds settings.
-* Made the admin version badge read the installed plugin header dynamically.
-* Added dynamic GitHub release status and upgrade availability to the plugin dashboard.
-* Added hidden Chat ID fields with an accessible show/hide control.
-
 = 1.0.0 =
-* Initial GitHub release and custom WordPress update integration.
-* Responsive administration dashboard, settings, triggers, alerts, templates, and logs.
-* Configurable date and time formats for Telegram alerts and logs.
-* Custom plugin details modal with project-owned description, setup, FAQ, changelog, screenshot, valuation, and usage information.
+* Initial release.
+* Responsive administration dashboard, settings, triggers, alerts, message formats, developer templates, and logs.
+* Configurable date and time formats for every built-in Telegram notification and plugin log.
+* Dynamic discovery of registered post types displayed in the WordPress admin menu.
+* Hidden bot-token and Chat ID fields with accessible show/hide controls.
+* WordPress-standard update handling without a custom updater.

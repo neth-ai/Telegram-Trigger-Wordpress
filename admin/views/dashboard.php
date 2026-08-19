@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $configured      = myp_telegram_settings()->is_configured();
 $enabled         = ! empty( $settings['enabled'] );
 $connection_ok   = $configured && $enabled;
-$chat_ids        = array_filter( array_map( 'trim', explode( ',', (string) $settings['chat_ids'] ) ) );
+$chat_ids        = myp_telegram_settings()->get_valid_chat_ids( $settings['chat_ids'] );
 $recipient_count = count( $chat_ids );
 $feature_groups  = array( 'content', 'media', 'comments', 'users', 'system', 'integrations' );
 $active_groups   = 0;
@@ -24,40 +24,6 @@ foreach ( $feature_groups as $group ) {
 	}
 }
 ?>
-<?php if ( ! empty( $release_status['newer_release'] ) ) : ?>
-	<section class="myp-release-notice <?php echo ! empty( $release_status['update_available'] ) ? 'myp-release-notice--ready' : 'myp-release-notice--missing'; ?>">
-		<span class="myp-release-notice__icon dashicons <?php echo ! empty( $release_status['update_available'] ) ? 'dashicons-update' : 'dashicons-warning'; ?>" aria-hidden="true"></span>
-		<div class="myp-release-notice__copy">
-			<strong>
-				<?php
-				printf(
-					/* translators: 1: Latest release tag, 2: Installed version. */
-					esc_html__( 'GitHub release %1$s is newer than installed v%2$s.', 'telegram-bot' ),
-					esc_html( $release_status['latest_tag'] ),
-					esc_html( $release_status['installed_version'] )
-				);
-				?>
-			</strong>
-			<span>
-				<?php
-				echo ! empty( $release_status['update_available'] )
-					? esc_html__( 'The release package is valid and WordPress can install this upgrade.', 'telegram-bot' )
-					: sprintf(
-						/* translators: %s: Required GitHub release asset filename. */
-						esc_html__( 'Automatic upgrade is waiting for the GitHub Release asset %s.', 'telegram-bot' ),
-						esc_html( $release_status['expected_asset'] )
-					);
-				?>
-			</span>
-		</div>
-		<div class="myp-release-notice__actions">
-			<?php if ( ! empty( $release_status['update_available'] ) ) : ?>
-				<a class="button button-primary myp-button" href="<?php echo esc_url( self_admin_url( 'update-core.php' ) ); ?>"><?php esc_html_e( 'Upgrade plugin', 'telegram-bot' ); ?></a>
-			<?php endif; ?>
-			<a class="button myp-button" href="<?php echo esc_url( $release_status['release_url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View GitHub release', 'telegram-bot' ); ?></a>
-		</div>
-	</section>
-<?php endif; ?>
 <section class="myp-hero <?php echo $connection_ok ? 'myp-hero--ready' : 'myp-hero--attention'; ?>">
 	<div class="myp-hero__banner" role="img" aria-label="<?php esc_attr_e( 'Telegram Bot Trigger Notifications banner', 'telegram-bot' ); ?>"></div>
 	<div class="myp-hero__content">
@@ -140,7 +106,7 @@ foreach ( $feature_groups as $group ) {
 				<span class="dashicons <?php echo $enabled ? 'dashicons-yes-alt' : 'dashicons-marker'; ?>" aria-hidden="true"></span>
 				<div><strong><?php esc_html_e( 'Delivery enabled', 'telegram-bot' ); ?></strong><small><?php esc_html_e( 'Turn on the master notification switch.', 'telegram-bot' ); ?></small></div>
 			</li>
-	</ul>
+		</ul>
 	</section>
 
 	<section class="myp-card myp-card--test">

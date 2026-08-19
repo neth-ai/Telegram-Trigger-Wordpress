@@ -38,7 +38,7 @@ class MYP_Telegram_Admin {
 	 * Register admin hooks.
 	 */
 	private function __construct() {
-		add_action( 'admin_menu', array( $this, 'register_menu' ) );
+		add_action( 'admin_menu', array( $this, 'register_menu' ), 999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_post_myp_telegram_save', array( $this, 'handle_save' ) );
 		add_action( 'admin_post_myp_telegram_test', array( $this, 'handle_test' ) );
@@ -58,7 +58,7 @@ class MYP_Telegram_Admin {
 			'myp-telegram-bot',
 			array( $this, 'render_dashboard' ),
 			'dashicons-format-chat',
-			58
+			null
 		);
 
 		add_submenu_page( 'myp-telegram-bot', __( 'Dashboard', 'telegram-bot' ), __( 'Dashboard', 'telegram-bot' ), 'manage_options', 'myp-telegram-bot', array( $this, 'render_dashboard' ) );
@@ -66,6 +66,7 @@ class MYP_Telegram_Admin {
 		add_submenu_page( 'myp-telegram-bot', __( 'Triggers', 'telegram-bot' ), __( 'Triggers', 'telegram-bot' ), 'manage_options', 'myp-telegram-triggers', array( $this, 'render_triggers' ) );
 		add_submenu_page( 'myp-telegram-bot', __( 'Alerts', 'telegram-bot' ), __( 'Alerts', 'telegram-bot' ), 'manage_options', 'myp-telegram-alerts', array( $this, 'render_alerts' ) );
 		add_submenu_page( 'myp-telegram-bot', __( 'Date & Time Format', 'telegram-bot' ), __( 'Date & Time Format', 'telegram-bot' ), 'manage_options', 'myp-telegram-datetime', array( $this, 'render_datetime' ) );
+		add_submenu_page( 'myp-telegram-bot', __( 'Message Format', 'telegram-bot' ), __( 'Message Format', 'telegram-bot' ), 'manage_options', 'myp-telegram-message-format', array( $this, 'render_message_formats' ) );
 		add_submenu_page( 'myp-telegram-bot', __( 'Templates', 'telegram-bot' ), __( 'Templates', 'telegram-bot' ), 'manage_options', 'myp-telegram-templates', array( $this, 'render_templates' ) );
 		add_submenu_page( 'myp-telegram-bot', __( 'Logs', 'telegram-bot' ), __( 'Logs', 'telegram-bot' ), 'manage_options', 'myp-telegram-logs', array( $this, 'render_logs' ) );
 	}
@@ -103,8 +104,9 @@ class MYP_Telegram_Admin {
 
 		check_admin_referer( 'myp_telegram_save' );
 
-		$page  = isset( $_POST['myp_page'] ) ? sanitize_key( wp_unslash( $_POST['myp_page'] ) ) : 'dashboard';
-		$input = $this->input_for_page( $page );
+		$posted = wp_unslash( $_POST );
+		$page   = isset( $posted['myp_page'] ) ? sanitize_key( $posted['myp_page'] ) : 'dashboard';
+		$input  = $this->input_for_page( $page, $posted );
 
 		myp_telegram_settings()->save_partial( $input );
 		myp_telegram_settings()->reschedule_available_updates_cron();
@@ -179,11 +181,11 @@ class MYP_Telegram_Admin {
 	/**
 	 * Extract and shape posted input.
 	 *
-	 * @param string $page Page key.
+	 * @param string               $page   Page key.
+	 * @param array<string, mixed> $posted Nonce-verified request data.
 	 * @return array<string, mixed>
 	 */
-	private function input_for_page( $page ) {
-		$posted  = wp_unslash( $_POST );
+	private function input_for_page( $page, $posted ) {
 		$input   = array();
 		$current = myp_telegram_settings()->get_settings();
 
@@ -252,6 +254,24 @@ class MYP_Telegram_Admin {
 			);
 		}
 
+		if ( 'message-format' === $page ) {
+			$posted_formats = isset( $posted['message_formats'] ) && is_array( $posted['message_formats'] ) ? $posted['message_formats'] : array();
+			$format_defaults = myp_telegram_settings()->get_message_format_defaults();
+			$input['message_formats'] = array();
+
+			foreach ( $format_defaults as $type => $defaults ) {
+				$format = isset( $posted_formats[ $type ] ) && is_array( $posted_formats[ $type ] ) ? $posted_formats[ $type ] : array();
+				$input['message_formats'][ $type ] = array(
+					'icon'     => isset( $format['icon'] ) ? sanitize_text_field( $format['icon'] ) : $defaults['icon'],
+					'template' => isset( $format['template'] ) ? sanitize_textarea_field( $format['template'] ) : $defaults['template'],
+				);
+
+				if ( array_key_exists( 'show_role', $defaults ) ) {
+					$input['message_formats'][ $type ]['show_role'] = isset( $format['show_role'] ) ? 1 : 0;
+				}
+			}
+		}
+
 		return $input;
 	}
 
@@ -261,8 +281,7 @@ class MYP_Telegram_Admin {
 	 * @return void
 	 */
 	public function render_dashboard() {
-		$settings       = myp_telegram_settings()->get_settings();
-		$release_status = MYP_Telegram_GitHub_Updater::instance()->get_release_status();
+		$settings = myp_telegram_settings()->get_settings();
 		$this->page_header( __( 'Telegram Bot Dashboard', 'telegram-bot' ), __( 'Monitor configuration status and test message delivery.', 'telegram-bot' ) );
 		$this->render_notice();
 		include MYP_TELEGRAM_DIR . 'admin/views/dashboard.php';
@@ -286,8 +305,9 @@ class MYP_Telegram_Admin {
 	 * @return void
 	 */
 	public function render_triggers() {
-		$settings   = myp_telegram_settings()->get_settings();
-		$post_types = myp_telegram_settings()->get_available_post_types();
+		$settings                 = myp_telegram_settings()->get_settings();
+		$post_types               = myp_telegram_settings()->get_available_post_types();
+		$integration_availability = MYP_Telegram_Integrations::get_availability();
 		$this->page_header( __( 'Trigger Manager', 'telegram-bot' ), __( 'Choose which WordPress activity is forwarded to Telegram.', 'telegram-bot' ) );
 		$this->render_notice();
 		include MYP_TELEGRAM_DIR . 'admin/views/triggers.php';
@@ -317,6 +337,19 @@ class MYP_Telegram_Admin {
 		$this->page_header( __( 'Date & Time Format', 'telegram-bot' ), __( 'Choose how dates and times appear in Telegram notifications and plugin logs.', 'telegram-bot' ) );
 		$this->render_notice();
 		include MYP_TELEGRAM_DIR . 'admin/views/datetime.php';
+	}
+
+	/**
+	 * Render editable Telegram message formats.
+	 *
+	 * @return void
+	 */
+	public function render_message_formats() {
+		$settings    = myp_telegram_settings()->get_settings();
+		$definitions = MYP_Telegram_Template_Manager::instance()->get_format_definitions();
+		$this->page_header( __( 'Telegram Message Format', 'telegram-bot' ), __( 'Customize icons, wording, placeholders, and optional fields in outgoing Telegram messages.', 'telegram-bot' ) );
+		$this->render_notice();
+		include MYP_TELEGRAM_DIR . 'admin/views/message-format.php';
 	}
 
 	/**
@@ -455,21 +488,33 @@ class MYP_Telegram_Admin {
 	 *
 	 * @param string                $prefix  Prefix.
 	 * @param array<string, string> $events  Labels.
-	 * @param array<int, string>    $current Current values.
+	 * @param array<int, string>    $current      Current values.
+	 * @param array<string, bool>   $availability Optional availability keyed by event.
 	 * @return void
 	 */
-	private function render_event_checkboxes( $prefix, $events, $current ) {
+	private function render_event_checkboxes( $prefix, $events, $current, $availability = array() ) {
 		$current = (array) $current;
 		echo '<div class="myp-check-grid">';
 
 		foreach ( $events as $key => $label ) {
+			$is_available = ! array_key_exists( $key, $availability ) || ! empty( $availability[ $key ] );
+			$choice_class = $is_available ? 'myp-choice' : 'myp-choice myp-choice--unavailable';
+
 			printf(
-				'<label class="myp-choice"><input type="checkbox" name="%1$s[events][]" value="%2$s" %3$s><span>%4$s</span></label>',
+				'<label class="%1$s"><input type="checkbox" name="%2$s[events][]" value="%3$s" %4$s %5$s><span>%6$s',
+				esc_attr( $choice_class ),
 				esc_attr( $prefix ),
 				esc_attr( $key ),
 				checked( in_array( $key, $current, true ), true, false ),
+				disabled( ! $is_available, true, false ),
 				esc_html( $label )
 			);
+
+			if ( ! $is_available ) {
+				echo '<small>' . esc_html__( 'Plugin not active', 'telegram-bot' ) . '</small>';
+			}
+
+			echo '</span></label>';
 		}
 
 		echo '</div>';
@@ -483,16 +528,7 @@ class MYP_Telegram_Admin {
 	 * @return void
 	 */
 	private function page_header( $title, $description ) {
-		$release_status = MYP_Telegram_GitHub_Updater::instance()->get_release_status();
-		$installed      = ! empty( $release_status['installed_version'] ) ? $release_status['installed_version'] : MYP_TELEGRAM_VERSION;
-		$latest_tag     = ! empty( $release_status['latest_tag'] ) ? $release_status['latest_tag'] : 'v' . $installed;
-		$version_label  = $latest_tag;
-		$version_class  = 'myp-version';
-
-		if ( ! empty( $release_status['newer_release'] ) ) {
-			$version_label = 'v' . $installed . ' → ' . $latest_tag;
-			$version_class .= ! empty( $release_status['update_available'] ) ? ' myp-version--update' : ' myp-version--package-missing';
-		}
+		$version_label = 'v' . MYP_TELEGRAM_VERSION;
 
 		echo '<div class="wrap myp-wrap">';
 		echo '<header class="myp-page-header">';
@@ -502,15 +538,7 @@ class MYP_Telegram_Admin {
 		echo '<h1>' . esc_html( $title ) . '</h1>';
 		echo '<p class="myp-lead">' . esc_html( $description ) . '</p>';
 		echo '</div>';
-		if ( ! empty( $release_status['update_available'] ) ) {
-			echo '<a class="' . esc_attr( $version_class ) . '" href="' . esc_url( self_admin_url( 'update-core.php' ) ) . '">' . esc_html( $version_label ) . '<span>' . esc_html__( 'Update available', 'telegram-bot' ) . '</span></a>';
-		} else {
-			echo '<span class="' . esc_attr( $version_class ) . '">' . esc_html( $version_label );
-			if ( ! empty( $release_status['newer_release'] ) && empty( $release_status['package_available'] ) ) {
-				echo '<span>' . esc_html__( 'Release ZIP required', 'telegram-bot' ) . '</span>';
-			}
-			echo '</span>';
-		}
+		echo '<span class="myp-version">' . esc_html( $version_label ) . '</span>';
 		echo '</header>';
 	}
 
@@ -523,11 +551,6 @@ class MYP_Telegram_Admin {
 		$notice  = get_transient( 'myp_telegram_admin_notice' );
 		$type    = '';
 		$message = '';
-
-		if ( isset( $_GET['myp_saved'] ) ) {
-			$type    = 'success';
-			$message = __( 'Settings saved.', 'telegram-bot' );
-		}
 
 		if ( is_array( $notice ) && ! empty( $notice['message'] ) ) {
 			$type    = $notice['type'];

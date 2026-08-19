@@ -53,12 +53,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="myp-field myp-field--full">
 				<label for="myp-chat-ids"><?php esc_html_e( 'Chat ID(s)', 'telegram-bot' ); ?></label>
 				<span class="myp-input-group">
-					<input id="myp-chat-ids" type="password" name="chat_ids" value="<?php echo esc_attr( $settings['chat_ids'] ); ?>" placeholder="123456789, -1001234567890" autocomplete="off" spellcheck="false">
+					<input id="myp-chat-ids" type="password" name="chat_ids" value="<?php echo esc_attr( $settings['chat_ids'] ); ?>" placeholder="123456789, -123456789" autocomplete="off" spellcheck="false" data-myp-chat-ids>
 					<button type="button" class="myp-input-action" data-myp-password-toggle="myp-chat-ids" data-label-show="<?php esc_attr_e( 'Show chat IDs', 'telegram-bot' ); ?>" data-label-hide="<?php esc_attr_e( 'Hide chat IDs', 'telegram-bot' ); ?>" aria-label="<?php esc_attr_e( 'Show chat IDs', 'telegram-bot' ); ?>">
 						<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
 					</button>
 				</span>
-				<small><?php esc_html_e( 'Separate multiple users, groups, or channels with commas.', 'telegram-bot' ); ?></small>
+				<small><?php esc_html_e( 'Each group or channel ID is saved with exactly one minus sign automatically. For example, 123456789 and -123456789 are both saved as -123456789. Separate multiple IDs with commas.', 'telegram-bot' ); ?></small>
 			</div>
 		</div>
 	</section>

@@ -8,6 +8,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+$available_integration_count = count( array_filter( $integration_availability ) );
+$integrations_enabled        = 0 < $available_integration_count && ! empty( $settings['integrations']['enabled'] );
 ?>
 <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="myp-form">
 	<input type="hidden" name="action" value="myp_telegram_save">
@@ -76,16 +79,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<div class="myp-card myp-card--feature">
 		<label class="myp-master">
-			<input type="checkbox" name="integrations[enabled]" value="1" <?php checked( ! empty( $settings['integrations']['enabled'] ) ); ?>>
+			<input type="checkbox" name="integrations[enabled]" value="1" <?php checked( $integrations_enabled ); ?> <?php disabled( 0 === $available_integration_count ); ?>>
 			<span class="myp-switch__control" aria-hidden="true"></span>
 			<span class="myp-master__icon myp-master__icon--orange dashicons dashicons-admin-plugins" aria-hidden="true"></span>
 			<span class="myp-master__copy">
 				<strong><?php esc_html_e( 'Optional integrations', 'telegram-bot' ); ?></strong>
-				<small><?php esc_html_e( 'Connect supported commerce, forms, and page-builder plugins.', 'telegram-bot' ); ?></small>
+				<small>
+					<?php
+					echo 0 === $available_integration_count
+						? esc_html__( 'No supported integration plugin is active. This section is safely disabled.', 'telegram-bot' )
+						: esc_html__( 'Only detected, active commerce, forms, and page-builder plugins can be selected.', 'telegram-bot' );
+					?>
+				</small>
 			</span>
 		</label>
 		<div class="myp-section">
-			<?php $this->render_event_checkboxes( 'integrations', $this->integration_events(), $settings['integrations']['events'] ); ?>
+			<?php $this->render_event_checkboxes( 'integrations', $this->integration_events(), $settings['integrations']['events'], $integration_availability ); ?>
 		</div>
 	</div>
 

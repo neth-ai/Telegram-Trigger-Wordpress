@@ -44,6 +44,161 @@ class MYP_Telegram_Template_Manager {
 	}
 
 	/**
+	 * Message-format definitions used by the editor.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function get_format_definitions() {
+		return array(
+			'content'      => array(
+				'title'        => __( 'Content activity', 'telegram-bot' ),
+				'description'  => __( 'Posts, pages, media, and custom post type activity.', 'telegram-bot' ),
+				'placeholders' => array( 'icon', 'type', 'action_text', 'content_title', 'by', 'time', 'categories', 'link' ),
+			),
+			'user'         => array(
+				'title'        => __( 'User alerts', 'telegram-bot' ),
+				'description'  => __( 'Registration, profile, role, login, logout, password, and deletion alerts.', 'telegram-bot' ),
+				'placeholders' => array( 'icon', 'action_text', 'account_user', 'role', 'detail', 'by', 'time' ),
+				'show_role'    => true,
+			),
+			'system'       => array(
+				'title'        => __( 'System alerts', 'telegram-bot' ),
+				'description'  => __( 'Plugin, theme, WordPress core, and language update activity.', 'telegram-bot' ),
+				'placeholders' => array( 'icon', 'action_text', 'component', 'item', 'version', 'by', 'time' ),
+			),
+			'comment'      => array(
+				'title'        => __( 'Comment alerts', 'telegram-bot' ),
+				'description'  => __( 'New, pending, restored, spam, trash, and deleted comments.', 'telegram-bot' ),
+				'placeholders' => array( 'icon', 'action_text', 'comment', 'author', 'content_title', 'link', 'time' ),
+			),
+			'failed_login' => array(
+				'title'        => __( 'Failed login alerts', 'telegram-bot' ),
+				'description'  => __( 'Unsuccessful WordPress login attempts.', 'telegram-bot' ),
+				'placeholders' => array( 'icon', 'account_user', 'time' ),
+			),
+			'integration'  => array(
+				'title'        => __( 'Optional integrations', 'telegram-bot' ),
+				'description'  => __( 'WooCommerce and supported form-plugin notifications.', 'telegram-bot' ),
+				'placeholders' => array( 'icon', 'integration_title', 'details', 'time' ),
+			),
+			'updates'      => array(
+				'title'        => __( 'Available updates digest', 'telegram-bot' ),
+				'description'  => __( 'Scheduled summaries of WordPress, plugin, and theme updates.', 'telegram-bot' ),
+				'placeholders' => array( 'icon', 'details', 'time' ),
+			),
+			'test'         => array(
+				'title'        => __( 'Test message', 'telegram-bot' ),
+				'description'  => __( 'The connection-test message sent from the dashboard.', 'telegram-bot' ),
+				'placeholders' => array( 'icon', 'site', 'time' ),
+			),
+		);
+	}
+
+	/**
+	 * Example values for a message-format preview.
+	 *
+	 * @param string $type Format type.
+	 * @return array<string, string>
+	 */
+	public function get_preview_values( $type ) {
+		$values = array(
+			'type'              => 'Post',
+			'action_text'       => 'Deleted account',
+			'content_title'     => 'Example title',
+			'account_user'      => 'test',
+			'role'              => 'Subscriber',
+			'detail'            => 'Example detail',
+			'by'                => 'admin',
+			'time'              => myp_telegram_format_datetime(),
+			'categories'        => 'News',
+			'link'              => home_url( '/' ),
+			'component'         => 'Plugin',
+			'item'              => 'Telegram Bot Trigger Notifications',
+			'version'           => MYP_TELEGRAM_VERSION,
+			'comment'           => 'Example comment',
+			'author'            => 'Visitor',
+			'integration_title' => 'WooCommerce Order Update',
+			'details'           => "Order: #1234\nStatus: Processing",
+			'site'              => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+		);
+
+		if ( 'system' === $type ) {
+			$values['action_text'] = 'Deactivated';
+		} elseif ( 'content' === $type ) {
+			$values['action_text'] = 'Moved to Trash';
+		}
+
+		return $values;
+	}
+
+	/**
+	 * Render one configured Telegram message.
+	 *
+	 * Empty optional values remove their complete line. Unknown placeholders are
+	 * left visible so an administrator can spot a template typo in a preview.
+	 *
+	 * @param string               $type   Format type.
+	 * @param array<string, mixed> $values Dynamic values.
+	 * @return string
+	 */
+	public function format_message( $type, $values = array() ) {
+		$definitions = $this->get_format_definitions();
+		$defaults    = myp_telegram_settings()->get_message_format_defaults();
+
+		if ( ! isset( $definitions[ $type ], $defaults[ $type ] ) ) {
+			return '';
+		}
+
+		$format   = myp_telegram_settings()->get( 'message_formats.' . $type, $defaults[ $type ] );
+		$format   = is_array( $format ) ? array_merge( $defaults[ $type ], $format ) : $defaults[ $type ];
+		$template = (string) $format['template'];
+		$values   = is_array( $values ) ? $values : array();
+		$values['icon'] = (string) $format['icon'];
+		$values['time'] = isset( $values['time'] ) ? $values['time'] : myp_telegram_format_datetime();
+
+		if ( 'user' === $type && empty( $format['show_role'] ) ) {
+			$values['role'] = '';
+		}
+
+		$optional = array( 'categories', 'link', 'detail', 'role', 'item', 'version', 'content_title', 'details' );
+		$lines    = explode( "\n", str_replace( array( "\r\n", "\r" ), "\n", $template ) );
+		$output   = array();
+
+		foreach ( $lines as $line ) {
+			$omit = false;
+
+			foreach ( $optional as $key ) {
+				if ( false !== strpos( $line, '{' . $key . '}' ) && ( ! isset( $values[ $key ] ) || '' === trim( (string) $values[ $key ] ) ) ) {
+					$omit = true;
+					break;
+				}
+			}
+
+			if ( ! $omit ) {
+				$output[] = $line;
+			}
+		}
+
+		$replacements = array();
+		foreach ( $definitions[ $type ]['placeholders'] as $placeholder ) {
+			$value = isset( $values[ $placeholder ] ) && is_scalar( $values[ $placeholder ] ) ? (string) $values[ $placeholder ] : '';
+			$replacements[ '{' . $placeholder . '}' ] = $value;
+		}
+
+		$message = strtr( implode( "\n", $output ), $replacements );
+		$message = preg_replace( "/\n{3,}/", "\n\n", trim( $message ) );
+
+		/**
+		 * Filter a formatted notification before Telegram delivery.
+		 *
+		 * @param string               $message Formatted message.
+		 * @param string               $type    Format type.
+		 * @param array<string, mixed> $values  Dynamic values.
+		 */
+		return (string) apply_filters( 'myp_telegram_formatted_message', $message, $type, $values );
+	}
+
+	/**
 	 * Sanitize a scalar value for Telegram.
 	 *
 	 * @param mixed $value  Value.

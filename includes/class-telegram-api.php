@@ -22,6 +22,13 @@ class MYP_Telegram_API {
 	private static $instance = null;
 
 	/**
+	 * Most recent delivery error for the current request.
+	 *
+	 * @var string
+	 */
+	private $last_error = '';
+
+	/**
 	 * Get the singleton instance.
 	 *
 	 * @return MYP_Telegram_API
@@ -42,7 +49,11 @@ class MYP_Telegram_API {
 	 * @return bool
 	 */
 	public function send( $message, $args = array() ) {
+		$this->last_error = '';
+
 		if ( ! is_string( $message ) ) {
+			$this->set_last_error( __( 'The Telegram message must be plain text.', 'telegram-bot' ) );
+
 			return false;
 		}
 
@@ -61,9 +72,23 @@ class MYP_Telegram_API {
 			)
 		);
 		$message = $this->sanitize_message( $message );
-		$chats   = $this->sanitize_chat_ids( $chat_list );
+		$chats   = $settings->get_valid_chat_ids( $chat_list );
 
-		if ( '' === $message || ! $this->is_valid_token( $token ) || ! $chats ) {
+		if ( '' === $message ) {
+			$this->set_last_error( __( 'The Telegram message is empty.', 'telegram-bot' ) );
+
+			return false;
+		}
+
+		if ( ! $this->is_valid_token( $token ) ) {
+			$this->set_last_error( __( 'The bot token format is invalid.', 'telegram-bot' ) );
+
+			return false;
+		}
+
+		if ( ! $chats ) {
+			$this->set_last_error( __( 'No valid Chat ID was found. Enter a numeric group or channel ID; the plugin adds one leading minus sign automatically.', 'telegram-bot' ) );
+
 			return false;
 		}
 
@@ -79,6 +104,15 @@ class MYP_Telegram_API {
 	}
 
 	/**
+	 * Return the most recent delivery error for the current request.
+	 *
+	 * @return string
+	 */
+	public function get_last_error() {
+		return $this->last_error;
+	}
+
+	/**
 	 * Send a test message using stored configuration.
 	 *
 	 * @return array{ok: bool, message: string}
@@ -91,21 +125,22 @@ class MYP_Telegram_API {
 			);
 		}
 
-		$site = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
-		$khmer = MYP_Telegram_Template_Manager::instance()->is_khmer_locale();
-		$sent = $this->send(
-			'✅ ' . sprintf(
-				/* translators: %s: website name. */
-				__( 'Telegram test message from %s is working.', 'telegram-bot' ),
-				$site
-			) . "\n" . ( $khmer ? 'ពេលវេលា: ' : 'Time: ' ) . myp_telegram_format_datetime()
+		$message = MYP_Telegram_Template_Manager::instance()->format_message(
+			'test',
+			array(
+				'site' => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+				'time' => myp_telegram_format_datetime(),
+			)
 		);
+		$sent = $this->send( $message );
+
+		$error = $this->get_last_error();
 
 		return array(
 			'ok'      => $sent,
 			'message' => $sent
 				? __( 'Test message sent. Check Telegram.', 'telegram-bot' )
-				: __( 'Telegram rejected the request. Verify the token, chat ID, and bot permissions.', 'telegram-bot' ),
+				: ( '' !== $error ? $error : __( 'Telegram rejected the request. Verify the token, Chat ID, and bot permissions.', 'telegram-bot' ) ),
 		);
 	}
 
@@ -131,7 +166,12 @@ class MYP_Telegram_API {
 			'disable_web_page_preview' => (bool) myp_telegram_settings()->get( 'disable_web_page_preview', 1 ),
 		);
 
-		if ( '' !== $parse_mode ) {
+		$has_urls = (bool) preg_match( '~https?://[^\s<>"\']+~iu', $message );
+		$entities = $this->get_url_entities( $message );
+
+		if ( $entities ) {
+			$body['entities'] = wp_json_encode( $entities );
+		} elseif ( ! $has_urls && '' !== $parse_mode ) {
 			$body['parse_mode'] = $parse_mode;
 		}
 
@@ -149,19 +189,167 @@ class MYP_Telegram_API {
 			)
 		);
 
-		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+		if ( is_wp_error( $response ) ) {
+			$this->set_last_error( __( 'WordPress could not connect to Telegram. Check the server connection and try again.', 'telegram-bot' ) );
+
 			return false;
 		}
 
 		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( ! is_array( $response_body ) || empty( $response_body['ok'] ) ) {
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) || ! is_array( $response_body ) || empty( $response_body['ok'] ) ) {
+			$description = is_array( $response_body ) && isset( $response_body['description'] ) && is_scalar( $response_body['description'] )
+				? sanitize_text_field( (string) $response_body['description'] )
+				: '';
+
+			$this->set_last_error( $this->friendly_telegram_error( $description ) );
+
 			return false;
 		}
 
 		set_transient( $duplicate_key, 1, max( 1, (int) myp_telegram_settings()->get( 'duplicate_ttl', 15 ) ) );
 
 		return true;
+	}
+
+	/**
+	 * Build explicit Telegram URL entities for plain-text messages.
+	 *
+	 * Telegram entity offsets use UTF-16 code units, so byte offsets cannot be
+	 * sent directly when emoji or Khmer text appears before a link.
+	 *
+	 * @param string $message Sanitized message.
+	 * @return array<int, array<string, int|string>>
+	 */
+	private function get_url_entities( $message ) {
+		$matched  = preg_match_all( '~https?://[^\s<>"\']+~iu', $message, $matches, PREG_OFFSET_CAPTURE );
+		$entities = array();
+
+		if ( ! $matched || empty( $matches[0] ) ) {
+			return $entities;
+		}
+
+		foreach ( $matches[0] as $match ) {
+			$url         = rtrim( $match[0], '.,;:!?' );
+			$byte_offset = (int) $match[1];
+
+			if ( '' === $url || ! $this->is_public_link_url( $url ) ) {
+				continue;
+			}
+
+			$entities[] = array(
+				'type'   => 'text_link',
+				'offset' => $this->utf16_length( substr( $message, 0, $byte_offset ) ),
+				'length' => $this->utf16_length( $url ),
+				'url'    => $url,
+			);
+		}
+
+		return $entities;
+	}
+
+	/**
+	 * Check whether Telegram can use a URL as a text-link destination.
+	 *
+	 * Localhost, development TLDs, and private/reserved IP addresses are kept as
+	 * plain text so Telegram does not reject the complete notification.
+	 *
+	 * @param string $url Candidate HTTP(S) URL.
+	 * @return bool
+	 */
+	private function is_public_link_url( $url ) {
+		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			return false;
+		}
+
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+
+		if ( '' === $host || 'localhost' === $host || false === strpos( $host, '.' ) ) {
+			return false;
+		}
+
+		foreach ( array( '.localhost', '.local', '.test', '.invalid', '.example' ) as $development_suffix ) {
+			if ( str_ends_with( $host, $development_suffix ) ) {
+				return false;
+			}
+		}
+
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			return (bool) filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Count UTF-16 code units as required by Telegram MessageEntity offsets.
+	 *
+	 * @param string $text UTF-8 text.
+	 * @return int
+	 */
+	private function utf16_length( $text ) {
+		if ( function_exists( 'mb_convert_encoding' ) ) {
+			return (int) ( strlen( mb_convert_encoding( $text, 'UTF-16LE', 'UTF-8' ) ) / 2 );
+		}
+
+		$characters = preg_split( '//u', $text, -1, PREG_SPLIT_NO_EMPTY );
+		$length     = 0;
+
+		foreach ( is_array( $characters ) ? $characters : array() as $character ) {
+			$length += 4 === strlen( $character ) ? 2 : 1;
+		}
+
+		return $length;
+	}
+
+	/**
+	 * Convert a Telegram API description into useful setup guidance.
+	 *
+	 * @param string $description Telegram API description.
+	 * @return string
+	 */
+	private function friendly_telegram_error( $description ) {
+		$normalized = strtolower( $description );
+
+		if ( false !== strpos( $normalized, 'chat not found' ) ) {
+			return __( 'Telegram could not access this group or channel. Add the bot to that chat, grant posting permission, and verify the numeric ID.', 'telegram-bot' );
+		}
+
+		if ( false !== strpos( $normalized, 'bot was blocked' ) ) {
+			return __( 'The Telegram user blocked this bot. Unblock it, open the bot, and send /start before testing again.', 'telegram-bot' );
+		}
+
+		if ( false !== strpos( $normalized, 'not enough rights' ) || false !== strpos( $normalized, 'not a member' ) ) {
+			return __( 'The bot does not have permission to post in this group or channel. Add the bot and grant permission, then test again.', 'telegram-bot' );
+		}
+
+		if ( false !== strpos( $normalized, 'unauthorized' ) ) {
+			return __( 'Telegram rejected the bot token. Copy the current token from @BotFather and save it again.', 'telegram-bot' );
+		}
+
+		if ( '' !== $description ) {
+			return sprintf(
+				/* translators: %s: Error description returned by the Telegram Bot API. */
+				__( 'Telegram API error: %s', 'telegram-bot' ),
+				$description
+			);
+		}
+
+		return __( 'Telegram rejected the request. Verify the token, Chat ID, and bot permissions.', 'telegram-bot' );
+	}
+
+	/**
+	 * Store and log a safe delivery error without tokens or Chat IDs.
+	 *
+	 * @param string $message Safe error message.
+	 * @return void
+	 */
+	private function set_last_error( $message ) {
+		$this->last_error = sanitize_text_field( (string) $message );
+
+		if ( '' !== $this->last_error ) {
+			MYP_Telegram_Logger::instance()->log( 'telegram_api', $this->last_error, 'error' );
+		}
 	}
 
 	/**
@@ -172,35 +360,6 @@ class MYP_Telegram_API {
 	 */
 	private function is_valid_token( $token ) {
 		return (bool) preg_match( '/^[0-9]{5,15}:[A-Za-z0-9_-]{20,}$/', $token );
-	}
-
-	/**
-	 * Validate chat ID format.
-	 *
-	 * @param string $chat_id Chat ID.
-	 * @return bool
-	 */
-	private function is_valid_chat_id( $chat_id ) {
-		return (bool) preg_match( '/^-?[0-9]{5,20}$/', $chat_id );
-	}
-
-	/**
-	 * Parse and validate comma-separated chat IDs.
-	 *
-	 * @param string $chat_list Raw chat list.
-	 * @return string[]
-	 */
-	private function sanitize_chat_ids( $chat_list ) {
-		$ids   = array();
-		$parts = array_filter( array_map( 'trim', explode( ',', (string) $chat_list ) ) );
-
-		foreach ( $parts as $part ) {
-			if ( $this->is_valid_chat_id( $part ) ) {
-				$ids[] = $part;
-			}
-		}
-
-		return array_values( array_unique( $ids ) );
 	}
 
 	/**

@@ -213,6 +213,7 @@ class MYP_Telegram_Settings {
 				'show_seconds'   => 1,
 				'timezone'       => 'Asia/Phnom_Penh',
 			),
+			'message_formats'         => $this->get_message_format_defaults(),
 			'content'                 => array(
 				'enabled'    => 1,
 				'post_types' => array( 'post', 'page' ),
@@ -255,6 +256,49 @@ class MYP_Telegram_Settings {
 	}
 
 	/**
+	 * Default editable Telegram message formats.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function get_message_format_defaults() {
+		return array(
+			'content'      => array(
+				'icon'     => '🔔',
+				'template' => "{icon} Telegram Content Activity\n\nType: {type}\nAction: {action_text}\nTitle: {content_title}\nBy: {by}\nTime: {time}\nCategories: {categories}\nLink: {link}",
+			),
+			'user'         => array(
+				'icon'      => '🟥',
+				'template'  => "{icon} USER ALERT\n\nAction: {action_text}\nAccount: {account_user}\nRole: {role}\nDetail: {detail}\nBy: {by}\nTime: {time}",
+				'show_role' => 1,
+			),
+			'system'       => array(
+				'icon'     => '🟥',
+				'template' => "{icon} SYSTEM ALERT\n\nAction: {action_text}\nComponent: {component}\nItem: {item}\nVersion: {version}\nBy: {by}\nTime: {time}",
+			),
+			'comment'      => array(
+				'icon'     => '💬',
+				'template' => "{icon} COMMENT ALERT\n\nAction: {action_text}\nComment: {comment}\nAuthor: {author}\nOn: {content_title}\nLink: {link}\nTime: {time}",
+			),
+			'failed_login' => array(
+				'icon'     => '⚠️',
+				'template' => "{icon} FAILED LOGIN ALERT\n\nAttempted username: {account_user}\nTime: {time}",
+			),
+			'integration'  => array(
+				'icon'     => '',
+				'template' => "{icon}{integration_title}\n\n{details}\nTime: {time}",
+			),
+			'updates'      => array(
+				'icon'     => '📦',
+				'template' => "{icon} AVAILABLE UPDATES\n\n{details}\nTime: {time}",
+			),
+			'test'         => array(
+				'icon'     => '✅',
+				'template' => "{icon} Telegram test message from {site} is working.\nTime: {time}",
+			),
+		);
+	}
+
+	/**
 	 * Sanitize the full settings array.
 	 *
 	 * @param array<string, mixed> $settings Raw settings.
@@ -266,7 +310,7 @@ class MYP_Telegram_Settings {
 
 		$settings['enabled']                  = empty( $settings['enabled'] ) ? 0 : 1;
 		$settings['bot_token']                = sanitize_text_field( (string) $settings['bot_token'] );
-		$settings['chat_ids']                 = sanitize_text_field( (string) $settings['chat_ids'] );
+		$settings['chat_ids']                 = implode( ', ', $this->get_valid_chat_ids( $settings['chat_ids'] ) );
 		$settings['parse_mode']               = $this->sanitize_parse_mode( $settings['parse_mode'] );
 		$settings['disable_web_page_preview'] = empty( $settings['disable_web_page_preview'] ) ? 0 : 1;
 		$settings['duplicate_ttl']            = max( 0, min( 3600, (int) $settings['duplicate_ttl'] ) );
@@ -281,6 +325,34 @@ class MYP_Telegram_Settings {
 			'show_seconds'   => empty( $datetime['show_seconds'] ) ? 0 : 1,
 			'timezone'       => $this->sanitize_timezone( isset( $datetime['timezone'] ) ? $datetime['timezone'] : '' ),
 		);
+
+		$formats                     = isset( $settings['message_formats'] ) && is_array( $settings['message_formats'] ) ? $settings['message_formats'] : array();
+		$settings['message_formats'] = array();
+
+		foreach ( $defaults['message_formats'] as $type => $format_defaults ) {
+			$format   = isset( $formats[ $type ] ) && is_array( $formats[ $type ] ) ? $formats[ $type ] : array();
+			$icon     = isset( $format['icon'] ) && is_scalar( $format['icon'] ) ? sanitize_text_field( (string) $format['icon'] ) : $format_defaults['icon'];
+			$template = isset( $format['template'] ) && is_scalar( $format['template'] ) ? sanitize_textarea_field( (string) $format['template'] ) : $format_defaults['template'];
+			$icon     = wp_check_invalid_utf8( $icon, true );
+			$template = wp_check_invalid_utf8( $template, true );
+
+			if ( function_exists( 'mb_substr' ) ) {
+				$icon     = mb_substr( $icon, 0, 40, 'UTF-8' );
+				$template = mb_substr( $template, 0, 4000, 'UTF-8' );
+			} else {
+				$icon     = wp_check_invalid_utf8( substr( $icon, 0, 160 ), true );
+				$template = wp_check_invalid_utf8( substr( $template, 0, 16000 ), true );
+			}
+
+			$settings['message_formats'][ $type ] = array(
+				'icon'     => $icon,
+				'template' => '' !== trim( $template ) ? $template : $format_defaults['template'],
+			);
+
+			if ( array_key_exists( 'show_role', $format_defaults ) ) {
+				$settings['message_formats'][ $type ]['show_role'] = empty( $format['show_role'] ) ? 0 : 1;
+			}
+		}
 
 		foreach ( array( 'content', 'media', 'comments', 'users', 'system', 'available_updates', 'integrations' ) as $group ) {
 			if ( ! isset( $settings[ $group ] ) || ! is_array( $settings[ $group ] ) ) {
@@ -469,6 +541,40 @@ class MYP_Telegram_Settings {
 		natcasesort( $result );
 
 		return $result;
+	}
+
+	/**
+	 * Normalize and validate Telegram chat IDs.
+	 *
+	 * Every numeric ID is normalized to exactly one leading minus sign for
+	 * Telegram groups and channels. Common Unicode minus characters and repeated
+	 * minus signs are normalized for values pasted from documents.
+	 *
+	 * @param mixed $chat_list Comma, semicolon, or newline-separated IDs.
+	 * @return array<int, string>
+	 */
+	public function get_valid_chat_ids( $chat_list ) {
+		$chat_list = is_scalar( $chat_list ) ? (string) $chat_list : '';
+		$chat_list = str_replace( array( '−', '–', '—', '－' ), '-', $chat_list );
+		$parts     = preg_split( '/[,;\r\n]+/u', trim( $chat_list ) );
+		$ids       = array();
+
+		foreach ( is_array( $parts ) ? $parts : array() as $chat_id ) {
+			$chat_id = trim( $chat_id );
+			$digits  = ltrim( $chat_id, '-' );
+
+			if ( ! preg_match( '/^[1-9][0-9]{0,18}$/', $digits ) ) {
+				continue;
+			}
+
+			if ( 19 === strlen( $digits ) && 0 < strcmp( $digits, '9223372036854775808' ) ) {
+				continue;
+			}
+
+			$ids[] = '-' . $digits;
+		}
+
+		return array_values( array_unique( $ids ) );
 	}
 
 	/**
