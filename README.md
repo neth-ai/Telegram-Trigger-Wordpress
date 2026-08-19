@@ -83,21 +83,17 @@ The source repository is hosted at:
 neth-ai/Telegram-Trigger-Wordpress
 ```
 
-For the initial `v1.0.0` release, create an installable package named:
+For the initial `v1.0.0` release, use the installable release asset named:
 
 ```text
 telegram-trigger-v1.0.0.zip
 ```
 
-Build it from the repository root with:
+The GitHub Actions workflow builds and attaches this asset automatically when a version tag such as `v1.0.0` is pushed. It can also be rerun manually for an existing tag from **Actions → Build WordPress release → Run workflow**.
 
-```bash
-./build-release.sh
-```
+The ZIP contains one top-level `telegram-trigger/` folder so the installed directory matches the plugin text domain. On the GitHub release page, download `telegram-trigger-v1.0.0.zip`. Do not install the automatically generated **Source code (zip)** archive: its versioned top-level directory does not match the plugin text domain and includes repository-only files.
 
-The ZIP must contain one top-level `telegram-trigger/` folder so the installed directory matches the plugin text domain. Do not install GitHub's automatically generated source archive: its versioned top-level directory does not match the plugin text domain and includes repository-only files.
-
-Release ZIP files are build artifacts and are ignored by Git. This plugin follows the standard WordPress update system and does not modify WordPress update transients. GitHub builds can be updated manually by installing the newer release package.
+Release ZIP files are build artifacts and are ignored by Git. This plugin follows the standard WordPress update system and does not modify WordPress update transients. GitHub builds can be updated manually by installing the newer release asset.
 
 ## Custom development
 

@@ -1,0 +1,87 @@
+name: Build WordPress release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag, for example v1.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Package plugin
+    runs-on: ubuntu-latest
+    env:
+      PLUGIN_SLUG: telegram-trigger
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Validate the tag and plugin version
+        shell: bash
+        run: |
+          set -euo pipefail
+          plugin_version="$(sed -nE 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*([^[:space:]]+).*/\1/p' telegram-bot.php | head -n 1)"
+          tag_version="${RELEASE_TAG#v}"
+
+          if [[ -z "$plugin_version" || "$tag_version" != "$plugin_version" ]]; then
+            echo "Release tag $RELEASE_TAG does not match plugin version $plugin_version." >&2
+            exit 1
+          fi
+
+          echo "PLUGIN_VERSION=$plugin_version" >> "$GITHUB_ENV"
+
+      - name: Build the installable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage_dir="$(mktemp -d)"
+          package_dir="$stage_dir/$PLUGIN_SLUG"
+          archive_name="$PLUGIN_SLUG-v$PLUGIN_VERSION.zip"
+
+          mkdir -p "$package_dir"
+          cp -R telegram-bot.php uninstall.php readme.txt README.md admin assets includes modules "$package_dir/"
+          find "$package_dir" -type f -name '.*' -delete
+
+          (
+            cd "$stage_dir"
+            COPYFILE_DISABLE=1 zip -qr "$GITHUB_WORKSPACE/$archive_name" "$PLUGIN_SLUG"
+          )
+
+          unzip -t "$archive_name"
+          first_entry="$(unzip -Z1 "$archive_name" | head -n 1)"
+          if [[ "$first_entry" != "$PLUGIN_SLUG/" ]]; then
+            echo "Unexpected top-level directory: $first_entry" >&2
+            exit 1
+          fi
+
+          if unzip -Z1 "$archive_name" | grep -Eq '(^|/)(\.DS_Store|\.gitignore|__MACOSX)(/|$)|/\._'; then
+            echo 'The release ZIP contains a forbidden hidden file.' >&2
+            exit 1
+          fi
+
+          echo "ARCHIVE_NAME=$archive_name" >> "$GITHUB_ENV"
+
+      - name: Publish the release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" --generate-notes
+          fi
+
+          gh release upload "$RELEASE_TAG" "$ARCHIVE_NAME" --clobber
