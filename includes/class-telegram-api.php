@@ -52,7 +52,7 @@ class MYP_Telegram_API {
 		$this->last_error = '';
 
 		if ( ! is_string( $message ) ) {
-			$this->set_last_error( __( 'The Telegram message must be plain text.', 'telegram-bot' ) );
+			$this->set_last_error( __( 'The Telegram message must be plain text.', 'telegram-bot-trigger-notifications' ) );
 
 			return false;
 		}
@@ -75,19 +75,19 @@ class MYP_Telegram_API {
 		$chats   = $settings->get_valid_chat_ids( $chat_list );
 
 		if ( '' === $message ) {
-			$this->set_last_error( __( 'The Telegram message is empty.', 'telegram-bot' ) );
+			$this->set_last_error( __( 'The Telegram message is empty.', 'telegram-bot-trigger-notifications' ) );
 
 			return false;
 		}
 
 		if ( ! $this->is_valid_token( $token ) ) {
-			$this->set_last_error( __( 'The bot token format is invalid.', 'telegram-bot' ) );
+			$this->set_last_error( __( 'The bot token format is invalid.', 'telegram-bot-trigger-notifications' ) );
 
 			return false;
 		}
 
 		if ( ! $chats ) {
-			$this->set_last_error( __( 'No valid Chat ID was found. Enter a numeric group or channel ID; the plugin adds one leading minus sign automatically.', 'telegram-bot' ) );
+			$this->set_last_error( __( 'No valid Chat ID was found. Enter a numeric group or channel ID; the plugin adds one leading minus sign automatically.', 'telegram-bot-trigger-notifications' ) );
 
 			return false;
 		}
@@ -121,7 +121,7 @@ class MYP_Telegram_API {
 		if ( ! myp_telegram_settings()->is_configured() ) {
 			return array(
 				'ok'      => false,
-				'message' => __( 'Please save a valid bot token and at least one chat ID first.', 'telegram-bot' ),
+				'message' => __( 'Please save a valid bot token and at least one chat ID first.', 'telegram-bot-trigger-notifications' ),
 			);
 		}
 
@@ -139,8 +139,8 @@ class MYP_Telegram_API {
 		return array(
 			'ok'      => $sent,
 			'message' => $sent
-				? __( 'Test message sent. Check Telegram.', 'telegram-bot' )
-				: ( '' !== $error ? $error : __( 'Telegram rejected the request. Verify the token, Chat ID, and bot permissions.', 'telegram-bot' ) ),
+				? __( 'Test message sent. Check Telegram.', 'telegram-bot-trigger-notifications' )
+				: ( '' !== $error ? $error : __( 'Telegram rejected the request. Verify the token, Chat ID, and bot permissions.', 'telegram-bot-trigger-notifications' ) ),
 		);
 	}
 
@@ -190,7 +190,7 @@ class MYP_Telegram_API {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			$this->set_last_error( __( 'WordPress could not connect to Telegram. Check the server connection and try again.', 'telegram-bot' ) );
+			$this->set_last_error( __( 'WordPress could not connect to Telegram. Check the server connection and try again.', 'telegram-bot-trigger-notifications' ) );
 
 			return false;
 		}
@@ -312,30 +312,30 @@ class MYP_Telegram_API {
 		$normalized = strtolower( $description );
 
 		if ( false !== strpos( $normalized, 'chat not found' ) ) {
-			return __( 'Telegram could not access this group or channel. Add the bot to that chat, grant posting permission, and verify the numeric ID.', 'telegram-bot' );
+			return __( 'Telegram could not access this group or channel. Add the bot to that chat, grant posting permission, and verify the numeric ID.', 'telegram-bot-trigger-notifications' );
 		}
 
 		if ( false !== strpos( $normalized, 'bot was blocked' ) ) {
-			return __( 'The Telegram user blocked this bot. Unblock it, open the bot, and send /start before testing again.', 'telegram-bot' );
+			return __( 'The Telegram user blocked this bot. Unblock it, open the bot, and send /start before testing again.', 'telegram-bot-trigger-notifications' );
 		}
 
 		if ( false !== strpos( $normalized, 'not enough rights' ) || false !== strpos( $normalized, 'not a member' ) ) {
-			return __( 'The bot does not have permission to post in this group or channel. Add the bot and grant permission, then test again.', 'telegram-bot' );
+			return __( 'The bot does not have permission to post in this group or channel. Add the bot and grant permission, then test again.', 'telegram-bot-trigger-notifications' );
 		}
 
 		if ( false !== strpos( $normalized, 'unauthorized' ) ) {
-			return __( 'Telegram rejected the bot token. Copy the current token from @BotFather and save it again.', 'telegram-bot' );
+			return __( 'Telegram rejected the bot token. Copy the current token from @BotFather and save it again.', 'telegram-bot-trigger-notifications' );
 		}
 
 		if ( '' !== $description ) {
 			return sprintf(
 				/* translators: %s: Error description returned by the Telegram Bot API. */
-				__( 'Telegram API error: %s', 'telegram-bot' ),
+				__( 'Telegram API error: %s', 'telegram-bot-trigger-notifications' ),
 				$description
 			);
 		}
 
-		return __( 'Telegram rejected the request. Verify the token, Chat ID, and bot permissions.', 'telegram-bot' );
+		return __( 'Telegram rejected the request. Verify the token, Chat ID, and bot permissions.', 'telegram-bot-trigger-notifications' );
 	}
 
 	/**

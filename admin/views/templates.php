@@ -10,27 +10,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="myp-card">
-	<div class="myp-card__title"><?php esc_html_e( 'Shortcode', 'telegram-bot' ); ?></div>
-	<p class="myp-card__desc"><?php esc_html_e( 'Send a custom message anywhere a shortcode is processed:', 'telegram-bot' ); ?></p>
+	<div class="myp-card__title"><?php esc_html_e( 'Shortcode', 'telegram-bot-trigger-notifications' ); ?></div>
+	<p class="myp-card__desc"><?php esc_html_e( 'Send a custom message anywhere a shortcode is processed:', 'telegram-bot-trigger-notifications' ); ?></p>
 	<pre class="myp-code">[myp_telegram message="Hello from WordPress"]</pre>
 </div>
 
 <div class="myp-card">
-	<div class="myp-card__title"><?php esc_html_e( 'PHP action hook', 'telegram-bot' ); ?></div>
+	<div class="myp-card__title"><?php esc_html_e( 'PHP action hook', 'telegram-bot-trigger-notifications' ); ?></div>
 	<pre class="myp-code">do_action( 'myp_telegram_send', 'Your message here' );</pre>
-	<p class="myp-card__desc"><?php esc_html_e( 'Or call the helper directly:', 'telegram-bot' ); ?></p>
+	<p class="myp-card__desc"><?php esc_html_e( 'Or call the helper directly:', 'telegram-bot-trigger-notifications' ); ?></p>
 	<pre class="myp-code">myp_telegram_send_notification( 'Your message here' );</pre>
 </div>
 
 <div class="myp-card">
-	<div class="myp-card__title"><?php esc_html_e( 'Customizing message content', 'telegram-bot' ); ?></div>
+	<div class="myp-card__title"><?php esc_html_e( 'Customizing message content', 'telegram-bot-trigger-notifications' ); ?></div>
 	<pre class="myp-code">add_filter( 'myp_telegram_message', function ( $message, $context ) {
     return $message . "\n" . 'Extra info: ' . $context['event'];
 }, 10, 2 );</pre>
 </div>
 
 <div class="myp-card">
-	<div class="myp-card__title"><?php esc_html_e( 'Popular integrations worth considering', 'telegram-bot' ); ?></div>
+	<div class="myp-card__title"><?php esc_html_e( 'Popular integrations worth considering', 'telegram-bot-trigger-notifications' ); ?></div>
 	<ul class="myp-list">
 		<li><strong>WooCommerce</strong> — new orders, order status changes, low/out-of-stock products.</li>
 		<li><strong>Contact Form 7, WPForms, Fluent Forms, Ninja Forms, Elementor Forms, Gravity Forms</strong> — form submission alerts.</li>

@@ -223,7 +223,7 @@ class MYP_Telegram_Trigger_Manager {
 
 		return $user->exists()
 			? $this->safe_text( $user->display_name, 100 )
-			: $this->safe_text( __( 'WordPress/System', 'telegram-bot' ), 100 );
+			: $this->safe_text( __( 'WordPress/System', 'telegram-bot-trigger-notifications' ), 100 );
 	}
 
 	/**
@@ -281,7 +281,7 @@ class MYP_Telegram_Trigger_Manager {
 		}
 
 		$title       = get_the_title( $post->ID );
-		$title       = '' !== $title ? $title : __( 'Untitled', 'telegram-bot' );
+		$title       = '' !== $title ? $title : __( 'Untitled', 'telegram-bot-trigger-notifications' );
 		$title       = $this->safe_text( $title, 250 );
 		$terms       = $this->content_terms( $post );
 		$url         = null === $url ? $this->content_url( $post ) : $this->safe_public_url( (string) $url );
@@ -431,7 +431,7 @@ class MYP_Telegram_Trigger_Manager {
 			}
 		}
 
-		return $labels ? implode( ', ', $labels ) : __( 'No role', 'telegram-bot' );
+		return $labels ? implode( ', ', $labels ) : __( 'No role', 'telegram-bot-trigger-notifications' );
 	}
 
 	/**
@@ -670,7 +670,7 @@ class MYP_Telegram_Trigger_Manager {
 
 		if ( $post ) {
 			$title = get_the_title( $post->ID );
-			$values['content_title'] = $this->safe_text( '' !== $title ? $title : __( 'Untitled', 'telegram-bot' ), 250 );
+			$values['content_title'] = $this->safe_text( '' !== $title ? $title : __( 'Untitled', 'telegram-bot-trigger-notifications' ), 250 );
 
 			$url = $this->safe_public_url( get_comment_link( $comment ) ?: '' );
 			if ( '' !== $url ) {

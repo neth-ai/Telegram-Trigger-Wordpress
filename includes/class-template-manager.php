@@ -51,44 +51,44 @@ class MYP_Telegram_Template_Manager {
 	public function get_format_definitions() {
 		return array(
 			'content'      => array(
-				'title'        => __( 'Content activity', 'telegram-bot' ),
-				'description'  => __( 'Posts, pages, media, and custom post type activity.', 'telegram-bot' ),
+				'title'        => __( 'Content activity', 'telegram-bot-trigger-notifications' ),
+				'description'  => __( 'Posts, pages, media, and custom post type activity.', 'telegram-bot-trigger-notifications' ),
 				'placeholders' => array( 'icon', 'type', 'action_text', 'content_title', 'by', 'time', 'categories', 'link' ),
 			),
 			'user'         => array(
-				'title'        => __( 'User alerts', 'telegram-bot' ),
-				'description'  => __( 'Registration, profile, role, login, logout, password, and deletion alerts.', 'telegram-bot' ),
+				'title'        => __( 'User alerts', 'telegram-bot-trigger-notifications' ),
+				'description'  => __( 'Registration, profile, role, login, logout, password, and deletion alerts.', 'telegram-bot-trigger-notifications' ),
 				'placeholders' => array( 'icon', 'action_text', 'account_user', 'role', 'detail', 'by', 'time' ),
 				'show_role'    => true,
 			),
 			'system'       => array(
-				'title'        => __( 'System alerts', 'telegram-bot' ),
-				'description'  => __( 'Plugin, theme, WordPress core, and language update activity.', 'telegram-bot' ),
+				'title'        => __( 'System alerts', 'telegram-bot-trigger-notifications' ),
+				'description'  => __( 'Plugin, theme, WordPress core, and language update activity.', 'telegram-bot-trigger-notifications' ),
 				'placeholders' => array( 'icon', 'action_text', 'component', 'item', 'version', 'by', 'time' ),
 			),
 			'comment'      => array(
-				'title'        => __( 'Comment alerts', 'telegram-bot' ),
-				'description'  => __( 'New, pending, restored, spam, trash, and deleted comments.', 'telegram-bot' ),
+				'title'        => __( 'Comment alerts', 'telegram-bot-trigger-notifications' ),
+				'description'  => __( 'New, pending, restored, spam, trash, and deleted comments.', 'telegram-bot-trigger-notifications' ),
 				'placeholders' => array( 'icon', 'action_text', 'comment', 'author', 'content_title', 'link', 'time' ),
 			),
 			'failed_login' => array(
-				'title'        => __( 'Failed login alerts', 'telegram-bot' ),
-				'description'  => __( 'Unsuccessful WordPress login attempts.', 'telegram-bot' ),
+				'title'        => __( 'Failed login alerts', 'telegram-bot-trigger-notifications' ),
+				'description'  => __( 'Unsuccessful WordPress login attempts.', 'telegram-bot-trigger-notifications' ),
 				'placeholders' => array( 'icon', 'account_user', 'time' ),
 			),
 			'integration'  => array(
-				'title'        => __( 'Optional integrations', 'telegram-bot' ),
-				'description'  => __( 'WooCommerce and supported form-plugin notifications.', 'telegram-bot' ),
+				'title'        => __( 'Optional integrations', 'telegram-bot-trigger-notifications' ),
+				'description'  => __( 'WooCommerce and supported form-plugin notifications.', 'telegram-bot-trigger-notifications' ),
 				'placeholders' => array( 'icon', 'integration_title', 'details', 'time' ),
 			),
 			'updates'      => array(
-				'title'        => __( 'Available updates digest', 'telegram-bot' ),
-				'description'  => __( 'Scheduled summaries of WordPress, plugin, and theme updates.', 'telegram-bot' ),
+				'title'        => __( 'Available updates digest', 'telegram-bot-trigger-notifications' ),
+				'description'  => __( 'Scheduled summaries of WordPress, plugin, and theme updates.', 'telegram-bot-trigger-notifications' ),
 				'placeholders' => array( 'icon', 'details', 'time' ),
 			),
 			'test'         => array(
-				'title'        => __( 'Test message', 'telegram-bot' ),
-				'description'  => __( 'The connection-test message sent from the dashboard.', 'telegram-bot' ),
+				'title'        => __( 'Test message', 'telegram-bot-trigger-notifications' ),
+				'description'  => __( 'The connection-test message sent from the dashboard.', 'telegram-bot-trigger-notifications' ),
 				'placeholders' => array( 'icon', 'site', 'time' ),
 			),
 		);
@@ -325,6 +325,6 @@ class MYP_Telegram_Template_Manager {
 			}
 		}
 
-		return $labels ? implode( ', ', $labels ) : __( 'No role', 'telegram-bot' );
+		return $labels ? implode( ', ', $labels ) : __( 'No role', 'telegram-bot-trigger-notifications' );
 	}
 }
