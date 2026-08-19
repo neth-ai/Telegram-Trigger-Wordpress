@@ -18,13 +18,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="myp-setting-row">
 			<div class="myp-setting-row__icon myp-setting-row__icon--blue"><span class="dashicons dashicons-controls-play" aria-hidden="true"></span></div>
 			<div class="myp-setting-row__copy">
-				<strong><?php esc_html_e( 'Telegram delivery', 'telegram-bot-trigger-notifications' ); ?></strong>
-				<span><?php esc_html_e( 'Master switch for all outgoing Telegram notifications.', 'telegram-bot-trigger-notifications' ); ?></span>
+				<strong><?php esc_html_e( 'Telegram delivery', 'telegram-trigger' ); ?></strong>
+				<span><?php esc_html_e( 'Master switch for all outgoing Telegram notifications.', 'telegram-trigger' ); ?></span>
 			</div>
 			<label class="myp-switch">
 				<input type="checkbox" name="enabled" value="1" <?php checked( ! empty( $settings['enabled'] ) ); ?>>
 				<span class="myp-switch__control" aria-hidden="true"></span>
-				<span class="screen-reader-text"><?php esc_html_e( 'Enable Telegram notifications', 'telegram-bot-trigger-notifications' ); ?></span>
+				<span class="screen-reader-text"><?php esc_html_e( 'Enable Telegram notifications', 'telegram-trigger' ); ?></span>
 			</label>
 		</div>
 	</section>
@@ -32,33 +32,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<section class="myp-card">
 		<div class="myp-card__header">
 			<div>
-				<div class="myp-card__title"><?php esc_html_e( 'Bot credentials', 'telegram-bot-trigger-notifications' ); ?></div>
-				<p class="myp-card__desc"><?php esc_html_e( 'Create a bot with @BotFather, then connect it to one or more Telegram conversations.', 'telegram-bot-trigger-notifications' ); ?></p>
+				<div class="myp-card__title"><?php esc_html_e( 'Bot credentials', 'telegram-trigger' ); ?></div>
+				<p class="myp-card__desc"><?php esc_html_e( 'Create a bot with @BotFather, then connect it to one or more Telegram conversations.', 'telegram-trigger' ); ?></p>
 			</div>
-			<span class="myp-card__badge"><?php esc_html_e( 'Required', 'telegram-bot-trigger-notifications' ); ?></span>
+			<span class="myp-card__badge"><?php esc_html_e( 'Required', 'telegram-trigger' ); ?></span>
 		</div>
 
 		<div class="myp-field-grid">
 			<div class="myp-field myp-field--full">
-				<label for="myp-bot-token"><?php esc_html_e( 'Bot token', 'telegram-bot-trigger-notifications' ); ?></label>
+				<label for="myp-bot-token"><?php esc_html_e( 'Bot token', 'telegram-trigger' ); ?></label>
 				<span class="myp-input-group">
 					<input id="myp-bot-token" type="password" name="bot_token" value="<?php echo esc_attr( $settings['bot_token'] ); ?>" placeholder="123456789:AA..." autocomplete="off" spellcheck="false">
-					<button type="button" class="myp-input-action" data-myp-password-toggle="myp-bot-token" data-label-show="<?php esc_attr_e( 'Show bot token', 'telegram-bot-trigger-notifications' ); ?>" data-label-hide="<?php esc_attr_e( 'Hide bot token', 'telegram-bot-trigger-notifications' ); ?>" aria-label="<?php esc_attr_e( 'Show bot token', 'telegram-bot-trigger-notifications' ); ?>">
+					<button type="button" class="myp-input-action" data-myp-password-toggle="myp-bot-token" data-label-show="<?php esc_attr_e( 'Show bot token', 'telegram-trigger' ); ?>" data-label-hide="<?php esc_attr_e( 'Hide bot token', 'telegram-trigger' ); ?>" aria-label="<?php esc_attr_e( 'Show bot token', 'telegram-trigger' ); ?>">
 						<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
 					</button>
 				</span>
-				<small><?php esc_html_e( 'Keep this token private. It authorizes anyone who has it to control your bot.', 'telegram-bot-trigger-notifications' ); ?></small>
+				<small><?php esc_html_e( 'Keep this token private. It authorizes anyone who has it to control your bot.', 'telegram-trigger' ); ?></small>
 			</div>
 
 			<div class="myp-field myp-field--full">
-				<label for="myp-chat-ids"><?php esc_html_e( 'Chat ID(s)', 'telegram-bot-trigger-notifications' ); ?></label>
+				<label for="myp-chat-ids"><?php esc_html_e( 'Chat ID(s)', 'telegram-trigger' ); ?></label>
 				<span class="myp-input-group">
 					<input id="myp-chat-ids" type="password" name="chat_ids" value="<?php echo esc_attr( $settings['chat_ids'] ); ?>" placeholder="123456789, -123456789" autocomplete="off" spellcheck="false" data-myp-chat-ids>
-					<button type="button" class="myp-input-action" data-myp-password-toggle="myp-chat-ids" data-label-show="<?php esc_attr_e( 'Show chat IDs', 'telegram-bot-trigger-notifications' ); ?>" data-label-hide="<?php esc_attr_e( 'Hide chat IDs', 'telegram-bot-trigger-notifications' ); ?>" aria-label="<?php esc_attr_e( 'Show chat IDs', 'telegram-bot-trigger-notifications' ); ?>">
+					<button type="button" class="myp-input-action" data-myp-password-toggle="myp-chat-ids" data-label-show="<?php esc_attr_e( 'Show chat IDs', 'telegram-trigger' ); ?>" data-label-hide="<?php esc_attr_e( 'Hide chat IDs', 'telegram-trigger' ); ?>" aria-label="<?php esc_attr_e( 'Show chat IDs', 'telegram-trigger' ); ?>">
 						<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
 					</button>
 				</span>
-				<small><?php esc_html_e( 'Each group or channel ID is saved with exactly one minus sign automatically. For example, 123456789 and -123456789 are both saved as -123456789. Separate multiple IDs with commas.', 'telegram-bot-trigger-notifications' ); ?></small>
+				<small><?php esc_html_e( 'Each group or channel ID is saved with exactly one minus sign automatically. For example, 123456789 and -123456789 are both saved as -123456789. Separate multiple IDs with commas.', 'telegram-trigger' ); ?></small>
 			</div>
 		</div>
 	</section>
@@ -66,54 +66,54 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<section class="myp-card">
 		<div class="myp-card__header">
 			<div>
-				<div class="myp-card__title"><?php esc_html_e( 'Delivery preferences', 'telegram-bot-trigger-notifications' ); ?></div>
-				<p class="myp-card__desc"><?php esc_html_e( 'Control formatting and duplicate protection for outgoing messages.', 'telegram-bot-trigger-notifications' ); ?></p>
+				<div class="myp-card__title"><?php esc_html_e( 'Delivery preferences', 'telegram-trigger' ); ?></div>
+				<p class="myp-card__desc"><?php esc_html_e( 'Control formatting and duplicate protection for outgoing messages.', 'telegram-trigger' ); ?></p>
 			</div>
 		</div>
 
 		<div class="myp-field-grid">
 			<label class="myp-field">
-				<span><?php esc_html_e( 'Parse mode', 'telegram-bot-trigger-notifications' ); ?></span>
+				<span><?php esc_html_e( 'Parse mode', 'telegram-trigger' ); ?></span>
 				<select name="parse_mode">
-					<option value="" <?php selected( '', $settings['parse_mode'] ); ?>><?php esc_html_e( 'Plain text (recommended)', 'telegram-bot-trigger-notifications' ); ?></option>
+					<option value="" <?php selected( '', $settings['parse_mode'] ); ?>><?php esc_html_e( 'Plain text (recommended)', 'telegram-trigger' ); ?></option>
 					<option value="HTML" <?php selected( 'HTML', $settings['parse_mode'] ); ?>>HTML</option>
 					<option value="MarkdownV2" <?php selected( 'MarkdownV2', $settings['parse_mode'] ); ?>>MarkdownV2</option>
 				</select>
-				<small><?php esc_html_e( 'Plain text is the safest option for dynamic WordPress content.', 'telegram-bot-trigger-notifications' ); ?></small>
+				<small><?php esc_html_e( 'Plain text is the safest option for dynamic WordPress content.', 'telegram-trigger' ); ?></small>
 			</label>
 
 			<label class="myp-field">
-				<span><?php esc_html_e( 'Duplicate suppression', 'telegram-bot-trigger-notifications' ); ?></span>
+				<span><?php esc_html_e( 'Duplicate suppression', 'telegram-trigger' ); ?></span>
 				<span class="myp-input-suffix">
 					<input type="number" min="0" max="3600" name="duplicate_ttl" value="<?php echo esc_attr( (int) $settings['duplicate_ttl'] ); ?>">
-					<span><?php esc_html_e( 'seconds', 'telegram-bot-trigger-notifications' ); ?></span>
+					<span><?php esc_html_e( 'seconds', 'telegram-trigger' ); ?></span>
 				</span>
-				<small><?php esc_html_e( 'Ignore identical notifications during this time window.', 'telegram-bot-trigger-notifications' ); ?></small>
+				<small><?php esc_html_e( 'Ignore identical notifications during this time window.', 'telegram-trigger' ); ?></small>
 			</label>
 		</div>
 
 		<div class="myp-setting-row myp-setting-row--nested">
 			<div class="myp-setting-row__icon myp-setting-row__icon--violet"><span class="dashicons dashicons-hidden" aria-hidden="true"></span></div>
 			<div class="myp-setting-row__copy">
-				<strong><?php esc_html_e( 'Disable link previews', 'telegram-bot-trigger-notifications' ); ?></strong>
-				<span><?php esc_html_e( 'Keep alerts compact by hiding website preview cards in Telegram.', 'telegram-bot-trigger-notifications' ); ?></span>
+				<strong><?php esc_html_e( 'Disable link previews', 'telegram-trigger' ); ?></strong>
+				<span><?php esc_html_e( 'Keep alerts compact by hiding website preview cards in Telegram.', 'telegram-trigger' ); ?></span>
 			</div>
 			<label class="myp-switch">
 				<input type="checkbox" name="disable_web_page_preview" value="1" <?php checked( ! empty( $settings['disable_web_page_preview'] ) ); ?>>
 				<span class="myp-switch__control" aria-hidden="true"></span>
-				<span class="screen-reader-text"><?php esc_html_e( 'Disable web page preview', 'telegram-bot-trigger-notifications' ); ?></span>
+				<span class="screen-reader-text"><?php esc_html_e( 'Disable web page preview', 'telegram-trigger' ); ?></span>
 			</label>
 		</div>
 	</section>
 
 	<div class="myp-action-bar">
 		<div>
-			<strong><?php esc_html_e( 'Save your connection', 'telegram-bot-trigger-notifications' ); ?></strong>
-			<span><?php esc_html_e( 'Changes take effect immediately for new events.', 'telegram-bot-trigger-notifications' ); ?></span>
+			<strong><?php esc_html_e( 'Save your connection', 'telegram-trigger' ); ?></strong>
+			<span><?php esc_html_e( 'Changes take effect immediately for new events.', 'telegram-trigger' ); ?></span>
 		</div>
 		<button type="submit" class="button button-primary myp-button">
 			<span class="dashicons dashicons-saved" aria-hidden="true"></span>
-			<?php esc_html_e( 'Save settings', 'telegram-bot-trigger-notifications' ); ?>
+			<?php esc_html_e( 'Save settings', 'telegram-trigger' ); ?>
 		</button>
 	</div>
 </form>

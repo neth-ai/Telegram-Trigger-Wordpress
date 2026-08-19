@@ -20,8 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<span class="myp-switch__control" aria-hidden="true"></span>
 			<span class="myp-master__icon myp-master__icon--blue dashicons dashicons-admin-users" aria-hidden="true"></span>
 			<span class="myp-master__copy">
-				<strong><?php esc_html_e( 'User action alerts', 'telegram-bot-trigger-notifications' ); ?></strong>
-				<small><?php esc_html_e( 'Monitor registrations, access activity, roles, and account changes.', 'telegram-bot-trigger-notifications' ); ?></small>
+				<strong><?php esc_html_e( 'User action alerts', 'telegram-trigger' ); ?></strong>
+				<small><?php esc_html_e( 'Monitor registrations, access activity, roles, and account changes.', 'telegram-trigger' ); ?></small>
 			</span>
 		</label>
 		<div class="myp-section">
@@ -35,8 +35,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<span class="myp-switch__control" aria-hidden="true"></span>
 			<span class="myp-master__icon myp-master__icon--violet dashicons dashicons-admin-tools" aria-hidden="true"></span>
 			<span class="myp-master__copy">
-				<strong><?php esc_html_e( 'System alerts', 'telegram-bot-trigger-notifications' ); ?></strong>
-				<small><?php esc_html_e( 'Track plugin, theme, WordPress core, and language changes.', 'telegram-bot-trigger-notifications' ); ?></small>
+				<strong><?php esc_html_e( 'System alerts', 'telegram-trigger' ); ?></strong>
+				<small><?php esc_html_e( 'Track plugin, theme, WordPress core, and language changes.', 'telegram-trigger' ); ?></small>
 			</span>
 		</label>
 		<div class="myp-section">
@@ -50,28 +50,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<span class="myp-switch__control" aria-hidden="true"></span>
 			<span class="myp-master__icon myp-master__icon--green dashicons dashicons-update" aria-hidden="true"></span>
 			<span class="myp-master__copy">
-				<strong><?php esc_html_e( 'Available updates digest', 'telegram-bot-trigger-notifications' ); ?></strong>
-				<small><?php esc_html_e( 'Receive a scheduled summary when WordPress updates are waiting.', 'telegram-bot-trigger-notifications' ); ?></small>
+				<strong><?php esc_html_e( 'Available updates digest', 'telegram-trigger' ); ?></strong>
+				<small><?php esc_html_e( 'Receive a scheduled summary when WordPress updates are waiting.', 'telegram-trigger' ); ?></small>
 			</span>
 		</label>
 		<label class="myp-field myp-field--compact">
-			<span><?php esc_html_e( 'Digest frequency', 'telegram-bot-trigger-notifications' ); ?></span>
+			<span><?php esc_html_e( 'Digest frequency', 'telegram-trigger' ); ?></span>
 			<select name="available_updates[schedule]">
-				<option value="daily" <?php selected( 'daily', $settings['available_updates']['schedule'] ); ?>><?php esc_html_e( 'Daily', 'telegram-bot-trigger-notifications' ); ?></option>
-				<option value="twicedaily" <?php selected( 'twicedaily', $settings['available_updates']['schedule'] ); ?>><?php esc_html_e( 'Twice daily', 'telegram-bot-trigger-notifications' ); ?></option>
-				<option value="hourly" <?php selected( 'hourly', $settings['available_updates']['schedule'] ); ?>><?php esc_html_e( 'Hourly', 'telegram-bot-trigger-notifications' ); ?></option>
+				<option value="daily" <?php selected( 'daily', $settings['available_updates']['schedule'] ); ?>><?php esc_html_e( 'Daily', 'telegram-trigger' ); ?></option>
+				<option value="twicedaily" <?php selected( 'twicedaily', $settings['available_updates']['schedule'] ); ?>><?php esc_html_e( 'Twice daily', 'telegram-trigger' ); ?></option>
+				<option value="hourly" <?php selected( 'hourly', $settings['available_updates']['schedule'] ); ?>><?php esc_html_e( 'Hourly', 'telegram-trigger' ); ?></option>
 			</select>
 		</label>
 	</div>
 
 	<div class="myp-action-bar">
 		<div>
-			<strong><?php esc_html_e( 'Apply alert changes', 'telegram-bot-trigger-notifications' ); ?></strong>
-			<span><?php esc_html_e( 'New user and system activity will use this configuration.', 'telegram-bot-trigger-notifications' ); ?></span>
+			<strong><?php esc_html_e( 'Apply alert changes', 'telegram-trigger' ); ?></strong>
+			<span><?php esc_html_e( 'New user and system activity will use this configuration.', 'telegram-trigger' ); ?></span>
 		</div>
 		<button type="submit" class="button button-primary myp-button">
 			<span class="dashicons dashicons-saved" aria-hidden="true"></span>
-			<?php esc_html_e( 'Save alerts', 'telegram-bot-trigger-notifications' ); ?>
+			<?php esc_html_e( 'Save alerts', 'telegram-trigger' ); ?>
 		</button>
 	</div>
 </form>

@@ -86,7 +86,7 @@ neth-ai/Telegram-Trigger-Wordpress
 For the initial `v1.0.0` release, create an installable package named:
 
 ```text
-telegram-bot-trigger-notifications-v1.0.0.zip
+telegram-trigger-v1.0.0.zip
 ```
 
 Build it from the repository root with:
@@ -95,7 +95,7 @@ Build it from the repository root with:
 ./build-release.sh
 ```
 
-The ZIP must contain one top-level `telegram-bot-trigger-notifications/` folder. Do not install GitHub's automatically generated source archive: its versioned top-level directory does not match the plugin text domain and includes repository-only files.
+The ZIP must contain one top-level `telegram-trigger/` folder so the installed directory matches the plugin text domain. Do not install GitHub's automatically generated source archive: its versioned top-level directory does not match the plugin text domain and includes repository-only files.
 
 Release ZIP files are build artifacts and are ignored by Git. This plugin follows the standard WordPress update system and does not modify WordPress update transients. GitHub builds can be updated manually by installing the newer release package.
 

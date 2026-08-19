@@ -10,19 +10,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="myp-card">
-	<div class="myp-card__title"><?php esc_html_e( 'Recent entries', 'telegram-bot-trigger-notifications' ); ?></div>
+	<div class="myp-card__title"><?php esc_html_e( 'Recent entries', 'telegram-trigger' ); ?></div>
 
 	<?php if ( empty( $logs ) ) : ?>
-		<p class="myp-card__desc"><?php esc_html_e( 'No diagnostic entries have been recorded yet.', 'telegram-bot-trigger-notifications' ); ?></p>
+		<p class="myp-card__desc"><?php esc_html_e( 'No diagnostic entries have been recorded yet.', 'telegram-trigger' ); ?></p>
 	<?php else : ?>
-		<div class="myp-table-scroll" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Recent Telegram Bot log entries', 'telegram-bot-trigger-notifications' ); ?>">
+		<div class="myp-table-scroll" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Recent Telegram Bot log entries', 'telegram-trigger' ); ?>">
 			<table class="widefat striped">
 				<thead>
 					<tr>
-						<th><?php esc_html_e( 'Time', 'telegram-bot-trigger-notifications' ); ?></th>
-						<th><?php esc_html_e( 'Context', 'telegram-bot-trigger-notifications' ); ?></th>
-						<th><?php esc_html_e( 'Level', 'telegram-bot-trigger-notifications' ); ?></th>
-						<th><?php esc_html_e( 'Message', 'telegram-bot-trigger-notifications' ); ?></th>
+						<th><?php esc_html_e( 'Time', 'telegram-trigger' ); ?></th>
+						<th><?php esc_html_e( 'Context', 'telegram-trigger' ); ?></th>
+						<th><?php esc_html_e( 'Level', 'telegram-trigger' ); ?></th>
+						<th><?php esc_html_e( 'Message', 'telegram-trigger' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -44,7 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<input type="hidden" name="action" value="myp_telegram_clear_logs">
 	<?php wp_nonce_field( 'myp_telegram_clear_logs' ); ?>
 	<p class="myp-submit">
-		<button type="submit" class="button"><?php esc_html_e( 'Clear logs', 'telegram-bot-trigger-notifications' ); ?></button>
+		<button type="submit" class="button"><?php esc_html_e( 'Clear logs', 'telegram-trigger' ); ?></button>
 	</p>
 </form>
 </div>

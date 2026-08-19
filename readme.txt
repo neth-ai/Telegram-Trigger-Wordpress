@@ -31,7 +31,7 @@ Build information: **18 សីហា 2026, 09:10:22 (Asia/Phnom_Penh)**.
 
 == Installation ==
 
-1. Upload the `telegram-bot-trigger-notifications` folder to the `/wp-content/plugins/` directory.
+1. Upload the `telegram-trigger` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the **Plugins** screen in WordPress.
 3. Open the new **Telegram-Bot** menu.
 4. Enter your Telegram bot token and chat ID.
